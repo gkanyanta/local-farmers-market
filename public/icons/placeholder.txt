@@ -1,0 +1,19 @@
+PWA Icon Placeholders
+
+To generate proper PNG icons from the SVG:
+
+1. Use an online tool like realfavicongenerator.net
+2. Or use the pwa-asset-generator npm package:
+   npx pwa-asset-generator public/icons/icon-192.svg public/icons
+
+Required icon sizes (from manifest.json):
+- icon-72.png (72x72)
+- icon-96.png (96x96)
+- icon-128.png (128x128)
+- icon-144.png (144x144)
+- icon-152.png (152x152)
+- icon-192.png (192x192)
+- icon-384.png (384x384)
+- icon-512.png (512x512)
+
+For development, you can use the SVG directly or create simple placeholder PNGs.

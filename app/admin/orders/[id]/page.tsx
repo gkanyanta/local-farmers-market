@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { formatCurrency, formatDateTime, getStatusColor, getStatusLabel } from "@/lib/utils";
-import { use } from "react";
 
 interface OrderItem {
   id: string;
@@ -61,8 +60,9 @@ const statusTransitions: Record<string, string[]> = {
   CANCELLED: [],
 };
 
-export default function AdminOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function AdminOrderDetailPage() {
+  const params = useParams();
+  const id = params.id as string;
   const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);

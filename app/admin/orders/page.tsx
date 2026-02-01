@@ -29,7 +29,7 @@ interface Order {
 }
 
 const statuses = [
-  { value: "", label: "All Statuses" },
+  { value: "all", label: "All Statuses" },
   { value: "PENDING_PAYMENT", label: "Pending Payment" },
   { value: "CONFIRMED", label: "Confirmed" },
   { value: "SOURCING", label: "Sourcing" },
@@ -42,14 +42,14 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
-      if (statusFilter) params.set("status", statusFilter);
+      if (statusFilter && statusFilter !== "all") params.set("status", statusFilter);
 
       const res = await fetch(`/api/admin/orders?${params}`);
       if (res.ok) {

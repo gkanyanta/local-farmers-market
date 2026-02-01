@@ -1,7 +1,33 @@
 import Link from "next/link";
 import { Phone, MessageCircle } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import { unstable_noStore as noStore } from "next/cache";
 
-export function Footer() {
+async function getSettings() {
+  noStore(); // Disable caching to always fetch fresh settings
+  try {
+    const settings = await prisma.settings.findUnique({
+      where: { id: "default" },
+    });
+    return settings;
+  } catch (error) {
+    console.error("Failed to fetch settings:", error);
+    return null;
+  }
+}
+
+export async function Footer() {
+  const settings = await getSettings();
+
+  const contactPhone = settings?.contactPhone || "+260 977 123 456";
+  const whatsappNumber = settings?.supportWhatsApp || "260977123456";
+
+  // Format phone for display (add spaces)
+  const displayPhone = contactPhone.replace(/(\+\d{3})(\d{3})(\d{3})(\d{3})/, "$1 $2 $3 $4");
+
+  // Clean WhatsApp number for link (remove spaces and +)
+  const whatsappLink = whatsappNumber.replace(/[\s+]/g, "");
+
   return (
     <footer className="border-t bg-gray-50">
       <div className="container py-8 md:py-12">
@@ -47,14 +73,14 @@ export function Footer() {
             <h4 className="font-semibold mb-3">Contact</h4>
             <div className="space-y-2 text-sm">
               <a
-                href="tel:+260977123456"
+                href={`tel:${contactPhone.replace(/\s/g, "")}`}
                 className="flex items-center gap-2 text-muted-foreground hover:text-primary"
               >
                 <Phone className="h-4 w-4" />
-                +260 977 123 456
+                {displayPhone}
               </a>
               <a
-                href="https://wa.me/260977123456"
+                href={`https://wa.me/${whatsappLink}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-muted-foreground hover:text-primary"

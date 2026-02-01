@@ -18,7 +18,17 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json(orders);
+    // Convert Decimal fields to strings for JSON serialization
+    const serializedOrders = orders.map((order) => ({
+      ...order,
+      subtotal: order.subtotal.toString(),
+      items: order.items.map((item) => ({
+        ...item,
+        priceSnapshot: item.priceSnapshot.toString(),
+      })),
+    }));
+
+    return NextResponse.json(serializedOrders);
   } catch (error) {
     console.error("Get orders error:", error);
     return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });

@@ -36,7 +36,25 @@ export async function GET(
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
 
-  return NextResponse.json(order);
+  // Serialize Decimal fields
+  const serializedOrder = {
+    ...order,
+    subtotal: order.subtotal.toString(),
+    items: order.items.map((item) => ({
+      ...item,
+      priceSnapshot: item.priceSnapshot.toString(),
+      product: item.product ? {
+        ...item.product,
+        price: item.product.price.toString(),
+      } : null,
+    })),
+    payments: order.payments.map((payment) => ({
+      ...payment,
+      amount: payment.amount.toString(),
+    })),
+  };
+
+  return NextResponse.json(serializedOrder);
 }
 
 // PATCH /api/admin/orders/[id]
@@ -103,7 +121,21 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json(updatedOrder);
+    // Serialize Decimal fields
+    const serializedOrder = {
+      ...updatedOrder,
+      subtotal: updatedOrder.subtotal.toString(),
+      items: updatedOrder.items.map((item) => ({
+        ...item,
+        priceSnapshot: item.priceSnapshot.toString(),
+      })),
+      payments: updatedOrder.payments.map((payment) => ({
+        ...payment,
+        amount: payment.amount.toString(),
+      })),
+    };
+
+    return NextResponse.json(serializedOrder);
   } catch (error) {
     console.error("Update order error:", error);
     return NextResponse.json({ error: "Failed to update order" }, { status: 500 });

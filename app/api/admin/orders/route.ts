@@ -51,8 +51,22 @@ export async function GET(request: NextRequest) {
     prisma.order.count({ where }),
   ]);
 
+  // Serialize Decimal fields for JSON
+  const serializedOrders = orders.map((order) => ({
+    ...order,
+    subtotal: order.subtotal.toString(),
+    items: order.items.map((item) => ({
+      ...item,
+      priceSnapshot: item.priceSnapshot.toString(),
+    })),
+    payments: order.payments.map((payment) => ({
+      ...payment,
+      amount: payment.amount.toString(),
+    })),
+  }));
+
   return NextResponse.json({
-    orders,
+    orders: serializedOrders,
     pagination: {
       page,
       limit,

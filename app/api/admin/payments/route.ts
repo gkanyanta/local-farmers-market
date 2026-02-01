@@ -54,8 +54,14 @@ export async function GET(request: NextRequest) {
     prisma.payment.count({ where }),
   ]);
 
+  // Serialize Decimal fields
+  const serializedPayments = payments.map((payment) => ({
+    ...payment,
+    amount: payment.amount.toString(),
+  }));
+
   return NextResponse.json({
-    payments,
+    payments: serializedPayments,
     pagination: {
       page,
       limit,

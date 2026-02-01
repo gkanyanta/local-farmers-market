@@ -33,7 +33,7 @@ interface Payment {
 }
 
 const statuses = [
-  { value: "", label: "All Statuses" },
+  { value: "all", label: "All Statuses" },
   { value: "INITIATED", label: "Initiated" },
   { value: "SUCCEEDED", label: "Succeeded" },
   { value: "FAILED", label: "Failed" },
@@ -43,14 +43,14 @@ export default function AdminPaymentsPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const fetchPayments = async () => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
-      if (statusFilter) params.set("status", statusFilter);
+      if (statusFilter && statusFilter !== "all") params.set("status", statusFilter);
 
       const res = await fetch(`/api/admin/payments?${params}`);
       if (res.ok) {

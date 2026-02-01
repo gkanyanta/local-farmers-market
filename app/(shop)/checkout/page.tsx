@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ArrowLeft, AlertCircle, Truck, User } from "lucide-react";
+import { ArrowLeft, AlertCircle, Truck, User, Smartphone } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ export default function CheckoutPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pickupOption, setPickupOption] = useState<"OWN_RIDER" | "BOOK_RIDER">("OWN_RIDER");
+  const [mobileOperator, setMobileOperator] = useState<"airtel" | "mtn">("airtel");
   const [formData, setFormData] = useState({
     customerName: "",
     customerPhone: "",
@@ -80,6 +81,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           ...formData,
           pickupOption,
+          mobileOperator,
         }),
       });
 
@@ -92,12 +94,14 @@ export default function CheckoutPage() {
       // Clear cart
       await clearCart();
 
-      // Redirect to payment URL if available, otherwise to order page
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else {
-        router.push(`/orders/${data.orderId}?paid=pending`);
-      }
+      // For mobile money, redirect to order page with payment pending message
+      // Customer will authorize payment on their phone
+      toast({
+        title: "Payment Initiated",
+        description: "Please check your phone to authorize the payment via " + (mobileOperator === "airtel" ? "Airtel Money" : "MTN Mobile Money"),
+      });
+
+      router.push(`/orders/${data.orderId}?paid=pending`);
     } catch (error) {
       toast({
         title: "Checkout Failed",
@@ -154,6 +158,56 @@ export default function CheckoutPage() {
                 placeholder="+260..."
                 required
               />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Mobile Money Payment */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Smartphone className="h-5 w-5" />
+              Payment Method
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Select your mobile money provider. You will receive a prompt on your phone to authorize the payment.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <label
+                className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-colors ${
+                  mobileOperator === "airtel"
+                    ? "border-red-500 bg-red-50"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="mobileOperator"
+                  checked={mobileOperator === "airtel"}
+                  onChange={() => setMobileOperator("airtel")}
+                  className="sr-only"
+                />
+                <span className="font-medium text-red-600">Airtel Money</span>
+              </label>
+
+              <label
+                className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-colors ${
+                  mobileOperator === "mtn"
+                    ? "border-yellow-500 bg-yellow-50"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="mobileOperator"
+                  checked={mobileOperator === "mtn"}
+                  onChange={() => setMobileOperator("mtn")}
+                  className="sr-only"
+                />
+                <span className="font-medium text-yellow-600">MTN MoMo</span>
+              </label>
             </div>
           </CardContent>
         </Card>

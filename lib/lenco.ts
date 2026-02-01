@@ -2,8 +2,10 @@ import crypto from "crypto";
 
 const LENCO_SECRET_KEY = process.env.LENCO_SECRET_KEY || "";
 const LENCO_WEBHOOK_SECRET = process.env.LENCO_WEBHOOK_SECRET || "";
-const LENCO_BASE_URL = process.env.LENCO_BASE_URL || "https://api.lenco.co";
+const LENCO_BASE_URL = process.env.LENCO_BASE_URL || "https://api.lenco.co/access/v2";
 const APP_BASE_URL = process.env.APP_BASE_URL || "http://localhost:3000";
+
+export type MobileOperator = "airtel" | "mtn";
 
 export interface PaymentIntentRequest {
   amount: number;
@@ -18,6 +20,7 @@ export interface PaymentIntentRequest {
     orderNumber: string;
   };
   callbackUrl: string;
+  mobileOperator?: MobileOperator;
 }
 
 export interface PaymentIntentResponse {
@@ -25,6 +28,8 @@ export interface PaymentIntentResponse {
   transactionRef?: string;
   checkoutId?: string;
   paymentUrl?: string;
+  status?: string;
+  message?: string;
   error?: string;
 }
 
@@ -43,8 +48,8 @@ export interface WebhookEvent {
 }
 
 /**
- * Create a payment intent with Lenco
- * Adjust this function based on actual Lenco API documentation
+ * Create a mobile money collection with Lenco (Zambia)
+ * Uses the /collections/mobile-money endpoint
  */
 export async function createPaymentIntent(
   request: PaymentIntentRequest
@@ -53,19 +58,29 @@ export async function createPaymentIntent(
     // Generate a unique transaction reference
     const transactionRef = `LFM-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
 
+    // Clean phone number - remove spaces and ensure proper format
+    let phone = request.customer.phone.replace(/\s+/g, "");
+    // If starts with +260, remove the +
+    if (phone.startsWith("+")) {
+      phone = phone.substring(1);
+    }
+    // If starts with 0, replace with 260
+    if (phone.startsWith("0")) {
+      phone = "260" + phone.substring(1);
+    }
+
     const payload = {
       amount: request.amount,
-      currency: request.currency,
       reference: transactionRef,
-      customer_name: request.customer.name,
-      customer_email: request.customer.email,
-      customer_phone: request.customer.phone,
-      callback_url: request.callbackUrl,
-      return_url: `${APP_BASE_URL}/orders/${request.metadata.orderId}?paid=pending`,
-      metadata: request.metadata,
+      phone: phone,
+      operator: request.mobileOperator || "airtel", // Default to airtel
+      country: "zm", // Zambia
+      bearer: "customer", // Customer pays the fees
     };
 
-    const response = await fetch(`${LENCO_BASE_URL}/v1/payments/initiate`, {
+    console.log("Lenco payment request:", { ...payload, url: `${LENCO_BASE_URL}/collections/mobile-money` });
+
+    const response = await fetch(`${LENCO_BASE_URL}/collections/mobile-money`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -76,21 +91,24 @@ export async function createPaymentIntent(
     });
 
     const data = await response.json();
+    console.log("Lenco payment response:", data);
 
     if (!response.ok) {
       console.error("Lenco payment initiation failed:", data);
       return {
         success: false,
-        error: data.message || "Payment initiation failed",
+        error: data.message || data.error || "Payment initiation failed",
       };
     }
 
-    // Adjust based on actual Lenco response structure
+    // For mobile money, the customer needs to authorize on their phone
+    // Status will be "pay-offline" initially
     return {
       success: true,
-      transactionRef: data.reference || transactionRef,
-      checkoutId: data.checkout_id || data.id,
-      paymentUrl: data.payment_url || data.checkout_url,
+      transactionRef: data.data?.reference || transactionRef,
+      checkoutId: data.data?.id,
+      status: data.data?.status || "pay-offline",
+      message: "Please authorize the payment on your mobile phone",
     };
   } catch (error) {
     console.error("Lenco payment error:", error);
@@ -103,18 +121,22 @@ export async function createPaymentIntent(
 
 /**
  * Verify webhook signature from Lenco
- * Adjust the signature verification based on Lenco's documentation
  */
 export function verifyWebhookSignature(
   headers: Record<string, string | string[] | undefined>,
   rawBody: string
 ): boolean {
   try {
-    // Get signature from headers (adjust header name based on Lenco docs)
+    // Get signature from headers
     const signature = headers["x-lenco-signature"] || headers["lenco-signature"];
 
     if (!signature || typeof signature !== "string") {
       console.error("Missing webhook signature header");
+      // If no webhook secret configured, skip verification for now
+      if (!LENCO_WEBHOOK_SECRET) {
+        console.warn("No webhook secret configured, skipping verification");
+        return true;
+      }
       return false;
     }
 
@@ -137,21 +159,22 @@ export function verifyWebhookSignature(
 
 /**
  * Parse webhook event from raw body
- * Adjust parsing based on actual Lenco webhook payload structure
  */
 export function parseWebhookEvent(rawBody: string): WebhookEvent | null {
   try {
     const data = JSON.parse(rawBody);
 
-    // Adjust field names based on actual Lenco webhook structure
+    // Handle Lenco webhook structure
+    const eventData = data.data || data;
+
     return {
-      eventId: data.event_id || data.id || crypto.randomUUID(),
-      eventType: data.event || data.type || "payment.completed",
-      transactionRef: data.reference || data.transaction_ref || data.data?.reference,
-      status: mapLencoStatus(data.status || data.data?.status),
-      amount: parseFloat(data.amount || data.data?.amount || "0"),
-      currency: data.currency || data.data?.currency || "ZMW",
-      metadata: data.metadata || data.data?.metadata,
+      eventId: data.event_id || data.id || eventData.id || crypto.randomUUID(),
+      eventType: data.event || data.type || "collection.completed",
+      transactionRef: eventData.reference || data.reference,
+      status: mapLencoStatus(eventData.status || data.status),
+      amount: parseFloat(eventData.amount || data.amount || "0"),
+      currency: eventData.currency || data.currency || "ZMW",
+      metadata: eventData.metadata || data.metadata,
       timestamp: data.timestamp || data.created_at || new Date().toISOString(),
     };
   } catch (error) {
@@ -166,7 +189,7 @@ function mapLencoStatus(status: string): "success" | "failed" | "pending" {
   if (["success", "successful", "completed", "paid"].includes(normalizedStatus)) {
     return "success";
   }
-  if (["failed", "failure", "declined", "cancelled"].includes(normalizedStatus)) {
+  if (["failed", "failure", "declined", "cancelled", "expired"].includes(normalizedStatus)) {
     return "failed";
   }
   return "pending";

@@ -16,6 +16,7 @@ export const checkoutSchema = z.object({
   customerName: z.string().min(2, "Name must be at least 2 characters"),
   customerPhone: z.string().min(10, "Phone number is required"),
   pickupOption: z.enum(["OWN_RIDER", "BOOK_RIDER"]),
+  mobileOperator: z.enum(["airtel", "mtn"]).optional(),
   riderName: z.string().optional(),
   riderPhone: z.string().optional(),
   pickupTime: z.string().optional(),

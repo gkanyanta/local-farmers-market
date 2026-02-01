@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
       riderPhone,
       pickupTime,
       pickupNotes,
+      mobileOperator,
     } = validation.data;
 
     // Get cart
@@ -111,6 +112,7 @@ export async function POST(request: NextRequest) {
         orderNumber,
       },
       callbackUrl,
+      mobileOperator: mobileOperator || "airtel",
     });
 
     if (!paymentResult.success) {

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -41,14 +40,44 @@ export async function POST(request: NextRequest) {
     const extension = file.name.split(".").pop();
     const filename = `products/${timestamp}-${Math.random().toString(36).substring(2, 8)}.${extension}`;
 
-    // Upload to Vercel Blob
-    const blob = await put(filename, file, {
-      access: "public",
-    });
+    // Get Blob token from environment
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+    if (!blobToken) {
+      return NextResponse.json(
+        { error: "Image upload not configured. Please set up Vercel Blob storage." },
+        { status: 500 }
+      );
+    }
+
+    // Upload to Vercel Blob using fetch
+    const arrayBuffer = await file.arrayBuffer();
+    const uploadResponse = await fetch(
+      `https://blob.vercel-storage.com/${filename}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${blobToken}`,
+          "Content-Type": file.type,
+          "x-api-version": "7",
+        },
+        body: arrayBuffer,
+      }
+    );
+
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      console.error("Blob upload failed:", errorText);
+      return NextResponse.json(
+        { error: "Failed to upload file to storage" },
+        { status: 500 }
+      );
+    }
+
+    const blobResult = await uploadResponse.json();
 
     return NextResponse.json({
       success: true,
-      url: blob.url,
+      url: blobResult.url,
     });
   } catch (error) {
     console.error("Upload error:", error);

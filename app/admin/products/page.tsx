@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { formatCurrency } from "@/lib/utils";
 
 interface Product {
@@ -295,12 +296,17 @@ export default function AdminProductsPage() {
                 </div>
               </div>
               <div>
-                <Label htmlFor="imageUrl">Image URL</Label>
+                <Label>Product Image</Label>
+                <ImageUpload
+                  value={formData.imageUrl}
+                  onChange={(url) => setFormData({ ...formData, imageUrl: url })}
+                />
                 <Input
-                  id="imageUrl"
                   type="url"
+                  placeholder="Or paste image URL"
                   value={formData.imageUrl}
                   onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                  className="mt-2"
                 />
               </div>
               <div className="flex items-center gap-4">

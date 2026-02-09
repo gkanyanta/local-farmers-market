@@ -63,6 +63,12 @@ export const orderStatusUpdateSchema = z.object({
   ]),
 });
 
+export const deviceTokenSchema = z.object({
+  token: z.string().min(1, "Token is required"),
+  platform: z.enum(["web", "android", "ios"]),
+});
+
+export type DeviceTokenInput = z.infer<typeof deviceTokenSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type CheckoutInput = z.infer<typeof checkoutSchema>;

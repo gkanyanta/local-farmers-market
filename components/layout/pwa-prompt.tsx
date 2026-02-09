@@ -15,6 +15,11 @@ export function PWAPrompt() {
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
+    // Hide install prompt when running inside Capacitor native shell
+    if ((window as unknown as Record<string, unknown>).__IS_CAPACITOR_NATIVE__) {
+      return;
+    }
+
     // Check if iOS
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isInStandaloneMode = window.matchMedia("(display-mode: standalone)").matches;

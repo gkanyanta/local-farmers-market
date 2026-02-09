@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { orderStatusUpdateSchema } from "@/lib/validations";
+import { sendOrderStatusNotification } from "@/lib/notifications";
 
 async function isAdmin() {
   const session = await getServerSession(authOptions);
@@ -120,6 +121,9 @@ export async function PATCH(
         payments: true,
       },
     });
+
+    // Send push notification (fire-and-forget)
+    sendOrderStatusNotification(order.userId, order.orderNumber, status);
 
     // Serialize Decimal fields
     const serializedOrder = {

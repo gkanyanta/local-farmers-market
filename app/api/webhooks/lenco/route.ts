@@ -5,6 +5,7 @@ import {
   parseWebhookEvent,
   generateBodyHash,
 } from "@/lib/lenco";
+import { sendOrderStatusNotification } from "@/lib/notifications";
 
 export async function POST(request: NextRequest) {
   try {
@@ -91,6 +92,7 @@ export async function POST(request: NextRequest) {
           where: { id: payment.orderId },
           data: { status: "CONFIRMED" },
         });
+        sendOrderStatusNotification(payment.order.userId, payment.order.orderNumber, "CONFIRMED");
         console.log(`Order ${payment.order.orderNumber} confirmed`);
       }
     } else if (event.status === "failed") {
@@ -100,6 +102,7 @@ export async function POST(request: NextRequest) {
           where: { id: payment.orderId },
           data: { status: "CANCELLED" },
         });
+        sendOrderStatusNotification(payment.order.userId, payment.order.orderNumber, "CANCELLED");
         console.log(`Order ${payment.order.orderNumber} cancelled due to failed payment`);
       }
     }

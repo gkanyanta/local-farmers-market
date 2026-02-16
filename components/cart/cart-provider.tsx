@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 
 interface CartItem {
@@ -70,11 +70,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     fetchCart();
   }, [fetchCart]);
 
-  // Save to localStorage for non-authenticated users
+  // Save to localStorage for non-authenticated users (debounced)
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!session?.user && !isLoading) {
-      localStorage.setItem("cart", JSON.stringify(items));
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = setTimeout(() => {
+        localStorage.setItem("cart", JSON.stringify(items));
+      }, 300);
     }
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    };
   }, [items, session?.user, isLoading]);
 
   const addItem = async (product: Omit<CartItem, "id" | "qty">, qty = 1) => {

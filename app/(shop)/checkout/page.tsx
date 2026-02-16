@@ -14,14 +14,13 @@ import { useCart } from "@/components/cart/cart-provider";
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
 
-const MIN_ORDER_VALUE = 150;
-
 export default function CheckoutPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const { items, subtotal, clearCart } = useCart();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [minOrderValue, setMinOrderValue] = useState(150);
   const [pickupOption, setPickupOption] = useState<"OWN_RIDER" | "BOOK_RIDER">("OWN_RIDER");
   const [mobileOperator, setMobileOperator] = useState<"airtel" | "mtn">("airtel");
   const [formData, setFormData] = useState({
@@ -42,6 +41,15 @@ export default function CheckoutPage() {
       }));
     }
   }, [session]);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.minOrderValue) setMinOrderValue(data.minOrderValue);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -65,7 +73,7 @@ export default function CheckoutPage() {
     return null;
   }
 
-  if (subtotal < MIN_ORDER_VALUE) {
+  if (subtotal < minOrderValue) {
     router.push("/cart");
     return null;
   }

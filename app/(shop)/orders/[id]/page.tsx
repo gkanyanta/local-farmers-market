@@ -8,6 +8,7 @@ import { formatCurrency, formatDateTime, getStatusColor, getStatusLabel } from "
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OrderTimeline } from "@/components/shop/order-timeline";
+import { CancelOrderButton } from "@/components/shop/cancel-order-button";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -88,6 +89,12 @@ export default async function OrderDetailPage({ params, searchParams }: PageProp
           {getStatusLabel(order.status)}
         </Badge>
       </div>
+
+      {(order.status === "PENDING_PAYMENT" || order.status === "CONFIRMED") && (
+        <div className="mb-6">
+          <CancelOrderButton orderId={order.id} />
+        </div>
+      )}
 
       <div className="space-y-6">
         {/* Order Timeline */}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -10,15 +11,23 @@ import { CartItem } from "@/components/cart/cart-item";
 import { useCart } from "@/components/cart/cart-provider";
 import { formatCurrency } from "@/lib/utils";
 
-const MIN_ORDER_VALUE = 150;
-
 export default function CartPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const { items, subtotal, isLoading, updateQty, removeItem } = useCart();
+  const [minOrderValue, setMinOrderValue] = useState(150);
 
-  const difference = MIN_ORDER_VALUE - subtotal;
-  const canCheckout = subtotal >= MIN_ORDER_VALUE;
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.minOrderValue) setMinOrderValue(data.minOrderValue);
+      })
+      .catch(() => {});
+  }, []);
+
+  const difference = minOrderValue - subtotal;
+  const canCheckout = subtotal >= minOrderValue;
 
   const handleCheckout = () => {
     if (!session) {
@@ -96,7 +105,7 @@ export default function CartPage() {
                 </div>
                 {!canCheckout && (
                   <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
-                    Minimum order is K{MIN_ORDER_VALUE}. Add{" "}
+                    Minimum order is K{minOrderValue}. Add{" "}
                     <strong>{formatCurrency(difference)}</strong> more.
                   </div>
                 )}

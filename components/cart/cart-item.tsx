@@ -57,6 +57,7 @@ export function CartItem({ item, onUpdateQty, onRemove }: CartItemProps) {
               size="icon"
               className="h-7 w-7"
               onClick={() => onUpdateQty(item.productId, item.qty - 1)}
+              aria-label="Decrease quantity"
             >
               <Minus className="h-3 w-3" />
             </Button>
@@ -66,6 +67,7 @@ export function CartItem({ item, onUpdateQty, onRemove }: CartItemProps) {
               size="icon"
               className="h-7 w-7"
               onClick={() => onUpdateQty(item.productId, item.qty + 1)}
+              aria-label="Increase quantity"
             >
               <Plus className="h-3 w-3" />
             </Button>
@@ -79,6 +81,7 @@ export function CartItem({ item, onUpdateQty, onRemove }: CartItemProps) {
               size="icon"
               className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50"
               onClick={() => onRemove(item.productId)}
+              aria-label="Remove from cart"
             >
               <Trash2 className="h-4 w-4" />
             </Button>

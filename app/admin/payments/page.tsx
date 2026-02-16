@@ -5,6 +5,7 @@ import { Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "@/components/ui/use-toast";
 import {
   Select,
   SelectContent,
@@ -59,6 +60,7 @@ export default function AdminPaymentsPage() {
       }
     } catch (error) {
       console.error("Failed to fetch payments:", error);
+      toast({ title: "Error", description: "Failed to load payments", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }

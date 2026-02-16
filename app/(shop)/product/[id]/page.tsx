@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
@@ -30,6 +31,29 @@ async function getProduct(id: string) {
   };
 }
 
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const product = await getProduct(id);
+
+  if (!product) {
+    return { title: "Product Not Found" };
+  }
+
+  const description =
+    product.description || `Buy ${product.name} from Local Farmers Market Lusaka`;
+
+  return {
+    title: `${product.name} | Local Farmers Market`,
+    description,
+    openGraph: {
+      title: product.name,
+      description,
+      images: product.imageUrl ? [{ url: product.imageUrl }] : [],
+      type: "website",
+    },
+  };
+}
+
 export default async function ProductPage({ params }: PageProps) {
   const { id } = await params;
   const product = await getProduct(id);
@@ -40,8 +64,29 @@ export default async function ProductPage({ params }: PageProps) {
 
   const isOutOfStock = !product.isPerishable && product.stockQty !== null && product.stockQty <= 0;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description || undefined,
+    image: product.imageUrl || undefined,
+    category: product.category.name,
+    offers: {
+      "@type": "Offer",
+      price: product.price,
+      priceCurrency: "ZMW",
+      availability: isOutOfStock
+        ? "https://schema.org/OutOfStock"
+        : "https://schema.org/InStock",
+    },
+  };
+
   return (
     <div className="container py-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Link
         href="/shop"
         className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-6"

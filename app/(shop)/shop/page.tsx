@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/shop/product-card";
 import { CategoryFilter } from "@/components/shop/category-filter";
 import { SearchInput } from "@/components/shop/search-input";
 import { Loader2 } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 interface Category {
   id: string;
@@ -55,6 +56,7 @@ function ShopContent() {
         }
       } catch (error) {
         console.error("Failed to fetch data:", error);
+        toast({ title: "Error", description: "Failed to load products", variant: "destructive" });
       } finally {
         setIsLoading(false);
       }

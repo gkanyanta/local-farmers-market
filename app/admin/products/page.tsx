@@ -75,6 +75,7 @@ export default function AdminProductsPage() {
       }
     } catch (error) {
       console.error("Failed to fetch products:", error);
+      toast({ title: "Error", description: "Failed to load products", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -89,6 +90,7 @@ export default function AdminProductsPage() {
       }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
+      toast({ title: "Error", description: "Failed to load categories", variant: "destructive" });
     }
   };
 
@@ -406,6 +408,7 @@ export default function AdminProductsPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleEdit(product)}
+                            aria-label="Edit product"
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -413,6 +416,7 @@ export default function AdminProductsPage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDelete(product)}
+                            aria-label="Delete product"
                           >
                             <Trash2 className="h-4 w-4 text-red-500" />
                           </Button>

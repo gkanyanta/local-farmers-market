@@ -79,6 +79,7 @@ export default function AdminOrderDetailPage() {
       }
     } catch (error) {
       console.error("Failed to fetch order:", error);
+      toast({ title: "Error", description: "Failed to load order details", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }

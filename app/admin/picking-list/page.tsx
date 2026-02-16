@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/components/ui/use-toast";
 
 interface PickingItem {
   productId: string;
@@ -39,6 +40,7 @@ export default function AdminPickingListPage() {
       }
     } catch (error) {
       console.error("Failed to fetch picking list:", error);
+      toast({ title: "Error", description: "Failed to load picking list", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }

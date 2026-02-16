@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "@/components/ui/use-toast";
 import {
   Select,
   SelectContent,
@@ -58,6 +59,7 @@ export default function AdminOrdersPage() {
       }
     } catch (error) {
       console.error("Failed to fetch orders:", error);
+      toast({ title: "Error", description: "Failed to load orders", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -157,7 +159,7 @@ export default function AdminOrdersPage() {
                         </td>
                         <td className="p-3 text-right">
                           <Link href={`/admin/orders/${order.id}`}>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" aria-label="View order details">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </Link>

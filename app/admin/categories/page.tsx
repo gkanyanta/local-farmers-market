@@ -49,6 +49,7 @@ export default function AdminCategoriesPage() {
       }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
+      toast({ title: "Error", description: "Failed to load categories", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -290,6 +291,7 @@ export default function AdminCategoriesPage() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEdit(category)}
+                          aria-label="Edit category"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -298,6 +300,7 @@ export default function AdminCategoriesPage() {
                           size="icon"
                           onClick={() => handleDelete(category)}
                           disabled={category._count.products > 0}
+                          aria-label="Delete category"
                         >
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>

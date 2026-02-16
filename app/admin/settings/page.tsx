@@ -44,6 +44,7 @@ export default function AdminSettingsPage() {
         }
       } catch (error) {
         console.error("Failed to fetch settings:", error);
+        toast({ title: "Error", description: "Failed to load settings", variant: "destructive" });
       } finally {
         setIsLoading(false);
       }

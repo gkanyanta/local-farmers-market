@@ -183,6 +183,7 @@ export default function CheckoutPage() {
                 }`}
               >
                 <input
+                  id="operator-airtel"
                   type="radio"
                   name="mobileOperator"
                   checked={mobileOperator === "airtel"}
@@ -193,6 +194,7 @@ export default function CheckoutPage() {
               </label>
 
               <label
+                htmlFor="operator-mtn"
                 className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-colors ${
                   mobileOperator === "mtn"
                     ? "border-yellow-500 bg-yellow-50"
@@ -200,6 +202,7 @@ export default function CheckoutPage() {
                 }`}
               >
                 <input
+                  id="operator-mtn"
                   type="radio"
                   name="mobileOperator"
                   checked={mobileOperator === "mtn"}
@@ -230,6 +233,7 @@ export default function CheckoutPage() {
                 }`}
               >
                 <input
+                  id="pickup-own-rider"
                   type="radio"
                   name="pickupOption"
                   checked={pickupOption === "OWN_RIDER"}
@@ -252,6 +256,7 @@ export default function CheckoutPage() {
                 }`}
               >
                 <input
+                  id="pickup-book-rider"
                   type="radio"
                   name="pickupOption"
                   checked={pickupOption === "BOOK_RIDER"}

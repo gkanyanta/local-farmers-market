@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { productSchema } from "@/lib/validations";
+import { Prisma } from "@prisma/client";
 
 async function isAdmin() {
   const session = await getServerSession(authOptions);
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get("search") || "";
   const category = searchParams.get("category") || "";
 
-  const where: any = {};
+  const where: Prisma.ProductWhereInput = {};
 
   if (search) {
     where.name = { contains: search, mode: "insensitive" };

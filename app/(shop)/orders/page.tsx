@@ -8,6 +8,7 @@ import { Package, ArrowRight, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from "@/lib/utils";
+import { toast } from "@/components/ui/use-toast";
 
 interface Order {
   id: string;
@@ -42,6 +43,7 @@ export default function OrdersPage() {
         }
       } catch (error) {
         console.error("Failed to fetch orders:", error);
+        toast({ title: "Error", description: "Failed to load your orders", variant: "destructive" });
       } finally {
         setIsLoading(false);
       }

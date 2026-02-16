@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validations";
-import crypto from "crypto";
-
-function hashPassword(password: string): string {
-  return crypto.createHash("sha256").update(password).digest("hex");
-}
+import { hashPassword } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,12 +30,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Create user
+    const hashedPassword = await hashPassword(password);
     const user = await prisma.user.create({
       data: {
         name,
         email: email.toLowerCase(),
         phone,
-        password: hashPassword(password),
+        password: hashedPassword,
       },
     });
 

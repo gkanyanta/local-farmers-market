@@ -130,13 +130,13 @@ export function verifyWebhookSignature(
     // Get signature from headers
     const signature = headers["x-lenco-signature"] || headers["lenco-signature"];
 
+    if (!LENCO_WEBHOOK_SECRET) {
+      console.error("LENCO_WEBHOOK_SECRET is not configured — rejecting webhook");
+      return false;
+    }
+
     if (!signature || typeof signature !== "string") {
       console.error("Missing webhook signature header");
-      // If no webhook secret configured, skip verification for now
-      if (!LENCO_WEBHOOK_SECRET) {
-        console.warn("No webhook secret configured, skipping verification");
-        return true;
-      }
       return false;
     }
 

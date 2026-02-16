@@ -1,10 +1,10 @@
 import { PrismaClient, Role } from "@prisma/client";
-import * as crypto from "crypto";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-function hashPassword(password: string): string {
-  return crypto.createHash("sha256").update(password).digest("hex");
+async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 12);
 }
 
 async function main() {
@@ -33,7 +33,7 @@ async function main() {
       email: "admin@localfarmersmarket.zm",
       name: "Admin User",
       phone: "+260977000001",
-      password: hashPassword("admin123"),
+      password: await hashPassword("admin123"),
       role: Role.ADMIN,
     },
   });
@@ -46,7 +46,7 @@ async function main() {
       email: "staff@localfarmersmarket.zm",
       name: "Staff Buyer",
       phone: "+260977000002",
-      password: hashPassword("staff123"),
+      password: await hashPassword("staff123"),
       role: Role.STAFF,
     },
   });
@@ -59,7 +59,7 @@ async function main() {
       email: "customer@test.zm",
       name: "Test Customer",
       phone: "+260977000003",
-      password: hashPassword("customer123"),
+      password: await hashPassword("customer123"),
       role: Role.CUSTOMER,
     },
   });

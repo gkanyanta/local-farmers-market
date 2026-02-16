@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { PaymentStatus, Prisma } from "@prisma/client";
 
 async function isAdmin() {
   const session = await getServerSession(authOptions);
@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
 
   const where: Prisma.PaymentWhereInput = {};
 
-  if (status) {
-    where.status = status;
+  if (status && Object.values(PaymentStatus).includes(status as PaymentStatus)) {
+    where.status = status as PaymentStatus;
   }
 
   if (search) {

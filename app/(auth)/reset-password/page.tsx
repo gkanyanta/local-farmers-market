@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -11,38 +10,73 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 
-function LoginForm() {
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/";
+  const token = searchParams.get("token");
 
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
     password: "",
+    confirmPassword: "",
   });
+
+  if (!token) {
+    return (
+      <Card className="w-full max-w-md mx-4">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl">Invalid Link</CardTitle>
+          <CardDescription>
+            This password reset link is invalid or has expired.
+          </CardDescription>
+        </CardHeader>
+        <CardFooter className="flex flex-col gap-4">
+          <Link href="/forgot-password" className="w-full">
+            <Button className="w-full">Request New Link</Button>
+          </Link>
+        </CardFooter>
+      </Card>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const result = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password: formData.password }),
       });
 
-      if (result?.error) {
+      const data = await res.json();
+
+      if (!res.ok) {
         toast({
-          title: "Login Failed",
-          description: "Invalid email or password",
+          title: "Error",
+          description: data.error || "Something went wrong.",
           variant: "destructive",
         });
-      } else {
-        router.push(redirect);
-        router.refresh();
+        return;
       }
+
+      toast({
+        title: "Password Reset",
+        description: "Your password has been reset. Please sign in.",
+      });
+
+      router.push("/login");
     } catch (error) {
       toast({
         title: "Error",
@@ -57,28 +91,15 @@ function LoginForm() {
   return (
     <Card className="w-full max-w-md mx-4">
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Welcome Back</CardTitle>
+        <CardTitle className="text-2xl">Reset Password</CardTitle>
         <CardDescription>
-          Sign in to your account to continue
+          Enter your new password below
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">New Password</Label>
             <Input
               id="password"
               type="password"
@@ -88,27 +109,28 @@ function LoginForm() {
               }
               required
             />
-            <div className="text-right">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-primary hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={(e) =>
+                setFormData({ ...formData, confirmPassword: e.target.value })
+              }
+              required
+            />
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isLoading ? "Resetting..." : "Reset Password"}
           </Button>
           <p className="text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <Link
-              href={`/register${redirect !== "/" ? `?redirect=${redirect}` : ""}`}
-              className="text-primary hover:underline"
-            >
-              Register
+            Remember your password?{" "}
+            <Link href="/login" className="text-primary hover:underline">
+              Sign In
             </Link>
           </p>
         </CardFooter>
@@ -117,7 +139,7 @@ function LoginForm() {
   );
 }
 
-export default function LoginPage() {
+export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
       <Card className="w-full max-w-md mx-4">
@@ -126,7 +148,7 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     }>
-      <LoginForm />
+      <ResetPasswordForm />
     </Suspense>
   );
 }

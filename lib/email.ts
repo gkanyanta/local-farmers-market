@@ -1,23 +1,30 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-let resend: Resend;
+let transporter: nodemailer.Transporter;
 
-function getResend() {
-  if (!resend) {
-    resend = new Resend(process.env.RESEND_API_KEY);
+function getTransporter() {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: Number(process.env.SMTP_PORT) || 587,
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
   }
-  return resend;
+  return transporter;
 }
 
 export async function sendPasswordResetEmail(
   email: string,
   token: string
 ) {
-  const fromEmail =
-    process.env.RESEND_FROM_EMAIL || "noreply@example.com";
+  const fromEmail = process.env.SMTP_FROM || process.env.SMTP_USER;
   const resetUrl = `${process.env.APP_BASE_URL}/reset-password?token=${token}`;
 
-  await getResend().emails.send({
+  await getTransporter().sendMail({
     from: fromEmail,
     to: email,
     subject: "Reset your password",

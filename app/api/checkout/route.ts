@@ -5,8 +5,12 @@ import { prisma } from "@/lib/prisma";
 import { checkoutSchema } from "@/lib/validations";
 import { generateOrderNumber } from "@/lib/utils";
 import { createPaymentIntent } from "@/lib/lenco";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
+  const limited = rateLimit(request, { limit: 5, windowSeconds: 60 });
+  if (limited) return limited;
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {

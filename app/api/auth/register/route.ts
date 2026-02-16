@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validations";
 import { hashPassword } from "@/lib/auth";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
+  const limited = rateLimit(request, { limit: 5, windowSeconds: 60 });
+  if (limited) return limited;
+
   try {
     const body = await request.json();
     const validation = registerSchema.safeParse(body);

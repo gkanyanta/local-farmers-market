@@ -2,14 +2,21 @@ import { z } from "zod";
 
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(1, "Password is required"),
 });
+
+const passwordSchema = z
+  .string()
+  .min(8, "Password must be at least 8 characters")
+  .regex(/[a-z]/, "Password must contain a lowercase letter")
+  .regex(/[A-Z]/, "Password must contain an uppercase letter")
+  .regex(/[0-9]/, "Password must contain a number");
 
 export const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: passwordSchema,
 });
 
 export const checkoutSchema = z.object({
@@ -28,7 +35,14 @@ export const productSchema = z.object({
   description: z.string().optional(),
   categoryId: z.string().min(1, "Category is required"),
   unit: z.string().min(1, "Unit is required"),
-  price: z.number().positive("Price must be positive"),
+  price: z
+    .number()
+    .positive("Price must be positive")
+    .max(999999.99, "Price cannot exceed K999,999.99")
+    .refine(
+      (p) => Number(p.toFixed(2)) === p,
+      "Price must have at most 2 decimal places"
+    ),
   imageUrl: z.string().optional(),
   isPerishable: z.boolean(),
   isActive: z.boolean(),

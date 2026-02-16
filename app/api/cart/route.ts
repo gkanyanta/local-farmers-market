@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 
 // GET /api/cart - Get cart items
 export async function GET() {
@@ -46,6 +47,9 @@ export async function GET() {
 
 // POST /api/cart - Add item to cart
 export async function POST(request: NextRequest) {
+  const limited = rateLimit(request, { limit: 30, windowSeconds: 60 });
+  if (limited) return limited;
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {

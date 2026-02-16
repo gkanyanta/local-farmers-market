@@ -68,11 +68,28 @@
   }
 }
 
-/* PWA safe area padding for notched devices */
+/* Safe area utilities for notched devices */
 @supports (padding: env(safe-area-inset-bottom)) {
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
+}
+
+/* Capacitor native safe-area adjustments */
+.capacitor-native header.sticky {
+  padding-top: env(safe-area-inset-top);
+}
+
+.capacitor-native .fixed.bottom-4,
+.capacitor-native .fixed.bottom-20 {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.capacitor-native footer {
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Smooth scrolling */

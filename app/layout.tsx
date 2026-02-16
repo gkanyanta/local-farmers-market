@@ -32,6 +32,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   themeColor: "#16a34a",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -52,6 +53,12 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
+              (function() {
+                if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                  window.__IS_CAPACITOR_NATIVE__ = true;
+                  document.documentElement.classList.add('capacitor-native');
+                }
+              })();
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
                   navigator.serviceWorker.register('/sw.js');

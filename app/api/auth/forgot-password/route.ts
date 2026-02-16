@@ -57,8 +57,9 @@ export async function POST(request: NextRequest) {
     return successResponse;
   } catch (error) {
     console.error("Forgot password error:", error);
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Something went wrong. Please try again." },
+      { error: "Something went wrong. Please try again.", debug: message },
       { status: 500 }
     );
   }

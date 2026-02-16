@@ -5,8 +5,7 @@ const config: CapacitorConfig = {
   appName: "Local Farmers Market",
   webDir: "public",
   server: {
-    // Replace with your deployed Vercel production URL
-    url: "https://local-farmers-market.vercel.app",
+    url: "https://market.privtech.net",
     cleartext: false,
   },
   plugins: {

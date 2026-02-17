@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ArrowLeft, ShoppingBag } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { CartItem } from "@/components/cart/cart-item";
@@ -109,6 +109,10 @@ export default function CartPage() {
                     <strong>{formatCurrency(difference)}</strong> more.
                   </div>
                 )}
+                <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-lg flex items-center gap-2">
+                  <Clock className="h-4 w-4 flex-shrink-0" />
+                  Order by 9:00 AM for same-day sourcing.
+                </div>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-3">

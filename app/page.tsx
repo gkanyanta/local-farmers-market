@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Truck, Leaf, ShoppingBag } from "lucide-react";
+import { ArrowRight, Truck, Leaf, ShoppingBag, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Header } from "@/components/layout/header";
@@ -103,6 +103,13 @@ export default async function HomePage() {
             <p className="text-center text-sm text-muted-foreground mt-6 italic">
               We are not a delivery company. Pickup is via your rider or a rider booked at your cost.
             </p>
+
+            <div className="mt-6 max-w-2xl mx-auto bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
+              <Clock className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-green-800">
+                <strong>Freshness guarantee:</strong> Order by 9:00 AM for same-day sourcing. Orders placed after 9:00 AM are sourced fresh the following day — because we never compromise on freshness.
+              </p>
+            </div>
           </div>
         </section>
 

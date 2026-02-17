@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ArrowLeft, AlertCircle, Truck, User, Smartphone } from "lucide-react";
+import { ArrowLeft, AlertCircle, Truck, User, Smartphone, Clock } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -132,6 +132,13 @@ export default function CheckoutPage() {
       </Link>
 
       <h1 className="text-2xl font-bold mb-6">Checkout</h1>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3 mb-6">
+        <Clock className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+        <p className="text-sm text-blue-800">
+          Orders placed before 9:00 AM are sourced and ready same day. Orders after 9:00 AM will be fulfilled the following day.
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Contact Information */}

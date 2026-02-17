@@ -12,6 +12,11 @@ const faqs = [
       "Browse our selection, add items to your cart, and checkout when your order reaches the minimum of K200. After payment is confirmed, we source your items fresh and notify you when they're ready for pickup.",
   },
   {
+    question: "When will my order be ready?",
+    answer:
+      "Orders placed before 9:00 AM are sourced fresh and ready for pickup the same day. If you order after 9:00 AM, your items will be sourced the following day. This ensures every order is as fresh as possible — straight from our local farmers to you.",
+  },
+  {
     question: "What is the minimum order value?",
     answer:
       "The minimum order value is K200. This helps us ensure efficient sourcing from our local farmers.",

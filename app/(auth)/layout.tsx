@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Sign In",
+  description: "Sign in or create an account at Local Farmers Market.",
+};
 
 export default function AuthLayout({
   children,

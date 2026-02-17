@@ -9,11 +9,11 @@ import { prisma } from "@/lib/prisma";
  * { "crons": [{ "path": "/api/cron/cleanup-orders", "schedule": "0 * * * *" }] }
  */
 export async function GET(request: NextRequest) {
-  // Verify cron secret or admin auth
+  // Verify cron secret
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

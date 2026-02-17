@@ -1,9 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const limited = rateLimit(request, { limit: 30, windowSeconds: 60 });
+  if (limited) return limited;
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {

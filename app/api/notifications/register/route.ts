@@ -3,9 +3,13 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { deviceTokenSchema } from "@/lib/validations";
+import { rateLimit } from "@/lib/rate-limit";
 
 // POST /api/notifications/register -- register/upsert a device token
 export async function POST(request: NextRequest) {
+  const limited = rateLimit(request, { limit: 10, windowSeconds: 60 });
+  if (limited) return limited;
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -48,6 +52,9 @@ export async function POST(request: NextRequest) {
 
 // DELETE /api/notifications/register -- remove a device token
 export async function DELETE(request: NextRequest) {
+  const limited2 = rateLimit(request, { limit: 10, windowSeconds: 60 });
+  if (limited2) return limited2;
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -1,9 +1,10 @@
 import crypto from "crypto";
-
-const LENCO_SECRET_KEY = process.env.LENCO_SECRET_KEY || "";
-const LENCO_WEBHOOK_SECRET = process.env.LENCO_WEBHOOK_SECRET || "";
-const LENCO_BASE_URL = process.env.LENCO_BASE_URL || "https://api.lenco.co/access/v2";
-const APP_BASE_URL = process.env.APP_BASE_URL || "http://localhost:3000";
+import {
+  LENCO_SECRET_KEY,
+  LENCO_WEBHOOK_SECRET,
+  LENCO_BASE_URL,
+  APP_BASE_URL,
+} from "@/lib/env";
 
 export type MobileOperator = "airtel" | "mtn";
 

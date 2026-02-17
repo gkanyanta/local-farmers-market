@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { rateLimit } from "@/lib/rate-limit";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
@@ -26,29 +27,79 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { name: true, email: true, phone: true },
-  });
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { name: true, email: true, phone: true },
+    });
 
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(user);
+  } catch (error) {
+    console.error("Get profile error:", error);
+    return NextResponse.json({ error: "Failed to fetch profile" }, { status: 500 });
   }
-
-  return NextResponse.json(user);
 }
 
 export async function PATCH(request: NextRequest) {
+  const limited = rateLimit(request, { limit: 10, windowSeconds: 60 });
+  if (limited) return limited;
+
   const session = await getServerSession(authOptions);
   if (!session?.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await request.json();
+  try {
+    const body = await request.json();
 
-  // Handle password change
-  if (body.currentPassword || body.newPassword) {
-    const validation = changePasswordSchema.safeParse(body);
+    // Handle password change
+    if (body.currentPassword || body.newPassword) {
+      const validation = changePasswordSchema.safeParse(body);
+      if (!validation.success) {
+        return NextResponse.json(
+          { error: validation.error.errors[0].message },
+          { status: 400 }
+        );
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+      });
+
+      if (!user?.password) {
+        return NextResponse.json(
+          { error: "Cannot change password for this account" },
+          { status: 400 }
+        );
+      }
+
+      const isValid = await bcrypt.compare(
+        validation.data.currentPassword,
+        user.password
+      );
+
+      if (!isValid) {
+        return NextResponse.json(
+          { error: "Current password is incorrect" },
+          { status: 400 }
+        );
+      }
+
+      const password = await bcrypt.hash(validation.data.newPassword, 12);
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: { password },
+      });
+
+      return NextResponse.json({ success: true, message: "Password updated" });
+    }
+
+    // Handle profile update
+    const validation = updateProfileSchema.safeParse(body);
     if (!validation.success) {
       return NextResponse.json(
         { error: validation.error.errors[0].message },
@@ -56,54 +107,17 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-    });
-
-    if (!user?.password) {
-      return NextResponse.json(
-        { error: "Cannot change password for this account" },
-        { status: 400 }
-      );
-    }
-
-    const isValid = await bcrypt.compare(
-      validation.data.currentPassword,
-      user.password
-    );
-
-    if (!isValid) {
-      return NextResponse.json(
-        { error: "Current password is incorrect" },
-        { status: 400 }
-      );
-    }
-
-    const password = await bcrypt.hash(validation.data.newPassword, 12);
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { password },
+      data: {
+        name: validation.data.name,
+        phone: validation.data.phone,
+      },
     });
 
-    return NextResponse.json({ success: true, message: "Password updated" });
+    return NextResponse.json({ success: true, message: "Profile updated" });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
   }
-
-  // Handle profile update
-  const validation = updateProfileSchema.safeParse(body);
-  if (!validation.success) {
-    return NextResponse.json(
-      { error: validation.error.errors[0].message },
-      { status: 400 }
-    );
-  }
-
-  await prisma.user.update({
-    where: { id: session.user.id },
-    data: {
-      name: validation.data.name,
-      phone: validation.data.phone,
-    },
-  });
-
-  return NextResponse.json({ success: true, message: "Profile updated" });
 }

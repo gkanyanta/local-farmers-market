@@ -16,46 +16,51 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
+  try {
+    const { id } = await params;
 
-  const user = await prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      role: true,
-      createdAt: true,
-      orders: {
-        orderBy: { createdAt: "desc" },
-        include: {
-          items: true,
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        createdAt: true,
+        orders: {
+          orderBy: { createdAt: "desc" },
+          include: {
+            items: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const totalSpent = user.orders
+      .filter((o) => o.status !== "CANCELLED")
+      .reduce((sum, o) => sum + o.subtotal.toNumber(), 0);
+
+    const serializedOrders = user.orders.map((order) => ({
+      ...order,
+      subtotal: order.subtotal.toString(),
+      items: order.items.map((item) => ({
+        ...item,
+        priceSnapshot: item.priceSnapshot.toString(),
+      })),
+    }));
+
+    return NextResponse.json({
+      ...user,
+      orders: serializedOrders,
+      totalSpent,
+    });
+  } catch (error) {
+    console.error("Get user detail error:", error);
+    return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });
   }
-
-  const totalSpent = user.orders
-    .filter((o) => o.status !== "CANCELLED")
-    .reduce((sum, o) => sum + o.subtotal.toNumber(), 0);
-
-  const serializedOrders = user.orders.map((order) => ({
-    ...order,
-    subtotal: order.subtotal.toString(),
-    items: order.items.map((item) => ({
-      ...item,
-      priceSnapshot: item.priceSnapshot.toString(),
-    })),
-  }));
-
-  return NextResponse.json({
-    ...user,
-    orders: serializedOrders,
-    totalSpent,
-  });
 }

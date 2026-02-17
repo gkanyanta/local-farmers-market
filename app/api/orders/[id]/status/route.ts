@@ -12,16 +12,21 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
+  try {
+    const { id } = await params;
 
-  const order = await prisma.order.findUnique({
-    where: { id },
-    select: { status: true, userId: true },
-  });
+    const order = await prisma.order.findUnique({
+      where: { id },
+      select: { status: true, userId: true },
+    });
 
-  if (!order || order.userId !== session.user.id) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!order || order.userId !== session.user.id) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ status: order.status });
+  } catch (error) {
+    console.error("Get order status error:", error);
+    return NextResponse.json({ error: "Failed to fetch order status" }, { status: 500 });
   }
-
-  return NextResponse.json({ status: order.status });
 }

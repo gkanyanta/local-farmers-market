@@ -21,43 +21,48 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
-  const order = await prisma.order.findUnique({
-    where: { id },
-    include: {
-      items: {
-        include: { product: true },
+  try {
+    const { id } = await params;
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: {
+          include: { product: true },
+        },
+        payments: true,
+        user: {
+          select: { name: true, email: true, phone: true },
+        },
       },
-      payments: true,
-      user: {
-        select: { name: true, email: true, phone: true },
-      },
-    },
-  });
+    });
 
-  if (!order) {
-    return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    if (!order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    // Serialize Decimal fields
+    const serializedOrder = {
+      ...order,
+      subtotal: order.subtotal.toString(),
+      items: order.items.map((item) => ({
+        ...item,
+        priceSnapshot: item.priceSnapshot.toString(),
+        product: item.product ? {
+          ...item.product,
+          price: item.product.price.toString(),
+        } : null,
+      })),
+      payments: order.payments.map((payment) => ({
+        ...payment,
+        amount: payment.amount.toString(),
+      })),
+    };
+
+    return NextResponse.json(serializedOrder);
+  } catch (error) {
+    console.error("Get admin order detail error:", error);
+    return NextResponse.json({ error: "Failed to fetch order" }, { status: 500 });
   }
-
-  // Serialize Decimal fields
-  const serializedOrder = {
-    ...order,
-    subtotal: order.subtotal.toString(),
-    items: order.items.map((item) => ({
-      ...item,
-      priceSnapshot: item.priceSnapshot.toString(),
-      product: item.product ? {
-        ...item.product,
-        price: item.product.price.toString(),
-      } : null,
-    })),
-    payments: order.payments.map((payment) => ({
-      ...payment,
-      amount: payment.amount.toString(),
-    })),
-  };
-
-  return NextResponse.json(serializedOrder);
 }
 
 // PATCH /api/admin/orders/[id]

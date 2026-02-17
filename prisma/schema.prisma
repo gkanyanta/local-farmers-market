@@ -51,6 +51,8 @@ model User {
   cart          Cart?
   orders        Order[]
   deviceTokens  DeviceToken[]
+
+  @@index([email])
 }
 
 model Account {
@@ -144,6 +146,7 @@ model CartItem {
   product Product @relation(fields: [productId], references: [id])
 
   @@unique([cartId, productId])
+  @@index([cartId])
 }
 
 model Order {
@@ -205,6 +208,7 @@ model Payment {
   @@index([orderId])
   @@index([status])
   @@index([lencoTransactionRef])
+  @@index([lencoCheckoutId])
 }
 
 model WebhookEvent {

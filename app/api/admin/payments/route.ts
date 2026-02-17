@@ -15,59 +15,64 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get("page") || "1");
-  const limit = parseInt(searchParams.get("limit") || "20");
-  const status = searchParams.get("status") || "";
-  const search = searchParams.get("search") || "";
+  try {
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20") || 20));
+    const status = searchParams.get("status") || "";
+    const search = searchParams.get("search") || "";
 
-  const where: Prisma.PaymentWhereInput = {};
+    const where: Prisma.PaymentWhereInput = {};
 
-  if (status && Object.values(PaymentStatus).includes(status as PaymentStatus)) {
-    where.status = status as PaymentStatus;
-  }
+    if (status && Object.values(PaymentStatus).includes(status as PaymentStatus)) {
+      where.status = status as PaymentStatus;
+    }
 
-  if (search) {
-    where.OR = [
-      { lencoTransactionRef: { contains: search, mode: "insensitive" } },
-      { order: { orderNumber: { contains: search, mode: "insensitive" } } },
-      { order: { customerPhone: { contains: search, mode: "insensitive" } } },
-    ];
-  }
+    if (search) {
+      where.OR = [
+        { lencoTransactionRef: { contains: search, mode: "insensitive" } },
+        { order: { orderNumber: { contains: search, mode: "insensitive" } } },
+        { order: { customerPhone: { contains: search, mode: "insensitive" } } },
+      ];
+    }
 
-  const [payments, total] = await Promise.all([
-    prisma.payment.findMany({
-      where,
-      include: {
-        order: {
-          select: {
-            orderNumber: true,
-            customerName: true,
-            customerPhone: true,
-            status: true,
+    const [payments, total] = await Promise.all([
+      prisma.payment.findMany({
+        where,
+        include: {
+          order: {
+            select: {
+              orderNumber: true,
+              customerName: true,
+              customerPhone: true,
+              status: true,
+            },
           },
         },
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.payment.count({ where }),
+    ]);
+
+    // Serialize Decimal fields
+    const serializedPayments = payments.map((payment) => ({
+      ...payment,
+      amount: payment.amount.toString(),
+    }));
+
+    return NextResponse.json({
+      payments: serializedPayments,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
       },
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    prisma.payment.count({ where }),
-  ]);
-
-  // Serialize Decimal fields
-  const serializedPayments = payments.map((payment) => ({
-    ...payment,
-    amount: payment.amount.toString(),
-  }));
-
-  return NextResponse.json({
-    payments: serializedPayments,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit),
-    },
-  });
+    });
+  } catch (error) {
+    console.error("Get admin payments error:", error);
+    return NextResponse.json({ error: "Failed to fetch payments" }, { status: 500 });
+  }
 }

@@ -17,42 +17,47 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get("page") || "1");
-  const limit = parseInt(searchParams.get("limit") || "20");
-  const search = searchParams.get("search") || "";
-  const category = searchParams.get("category") || "";
+  try {
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20") || 20));
+    const search = searchParams.get("search") || "";
+    const category = searchParams.get("category") || "";
 
-  const where: Prisma.ProductWhereInput = {};
+    const where: Prisma.ProductWhereInput = {};
 
-  if (search) {
-    where.name = { contains: search, mode: "insensitive" };
+    if (search) {
+      where.name = { contains: search, mode: "insensitive" };
+    }
+
+    if (category) {
+      where.categoryId = category;
+    }
+
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: { category: true },
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.product.count({ where }),
+    ]);
+
+    return NextResponse.json({
+      products,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error("Get admin products error:", error);
+    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
   }
-
-  if (category) {
-    where.categoryId = category;
-  }
-
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      include: { category: true },
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    prisma.product.count({ where }),
-  ]);
-
-  return NextResponse.json({
-    products,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit),
-    },
-  });
 }
 
 // POST /api/admin/products

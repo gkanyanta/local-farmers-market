@@ -45,6 +45,10 @@ export async function GET(request: NextRequest) {
         role: true,
         createdAt: true,
         _count: { select: { orders: true } },
+        orders: {
+          where: { status: { not: "CANCELLED" } },
+          select: { subtotal: true },
+        },
       },
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * limit,
@@ -53,8 +57,17 @@ export async function GET(request: NextRequest) {
     prisma.user.count({ where }),
   ]);
 
+  const serializedUsers = users.map((user) => {
+    const totalSpent = user.orders.reduce(
+      (sum, order) => sum + order.subtotal.toNumber(),
+      0
+    );
+    const { orders: _, ...rest } = user;
+    return { ...rest, totalSpent };
+  });
+
   return NextResponse.json({
-    users,
+    users: serializedUsers,
     pagination: {
       page,
       limit,

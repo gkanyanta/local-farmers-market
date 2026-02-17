@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Loader2, Shield } from "lucide-react";
+import Link from "next/link";
+import { Search, Loader2, Shield, Eye, UserX } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatDateTime } from "@/lib/utils";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
 
 interface User {
   id: string;
@@ -24,6 +25,7 @@ interface User {
   role: string;
   createdAt: string;
   _count: { orders: number };
+  totalSpent: number;
 }
 
 const roles = [
@@ -154,6 +156,12 @@ export default function AdminUsersPage() {
         <Card>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
+              {users.length === 0 ? (
+                <div className="py-12 text-center">
+                  <UserX className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-muted-foreground">No users found matching your search.</p>
+                </div>
+              ) : (
               <table className="w-full">
                 <thead>
                   <tr className="border-b bg-gray-50">
@@ -161,8 +169,9 @@ export default function AdminUsersPage() {
                     <th className="text-left p-3 font-medium">Phone</th>
                     <th className="text-left p-3 font-medium">Joined</th>
                     <th className="text-left p-3 font-medium">Orders</th>
+                    <th className="text-right p-3 font-medium">Total Spent</th>
                     <th className="text-left p-3 font-medium">Role</th>
-                    <th className="text-right p-3 font-medium">Change Role</th>
+                    <th className="text-right p-3 font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -175,30 +184,41 @@ export default function AdminUsersPage() {
                       <td className="p-3 text-sm">{user.phone || "—"}</td>
                       <td className="p-3 text-sm">{formatDateTime(user.createdAt)}</td>
                       <td className="p-3 text-sm">{user._count.orders}</td>
+                      <td className="p-3 text-right text-sm font-medium">
+                        {formatCurrency(user.totalSpent)}
+                      </td>
                       <td className="p-3">
                         <Badge className={getRoleBadgeColor(user.role)}>
                           {user.role}
                         </Badge>
                       </td>
                       <td className="p-3 text-right">
-                        <Select
-                          value={user.role}
-                          onValueChange={(value) => handleRoleChange(user.id, value)}
-                        >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="CUSTOMER">Customer</SelectItem>
-                            <SelectItem value="STAFF">Staff</SelectItem>
-                            <SelectItem value="ADMIN">Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <div className="flex items-center justify-end gap-1">
+                          <Link href={`/admin/users/${user.id}`}>
+                            <Button variant="ghost" size="icon" aria-label="View user details">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </Link>
+                          <Select
+                            value={user.role}
+                            onValueChange={(value) => handleRoleChange(user.id, value)}
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="CUSTOMER">Customer</SelectItem>
+                              <SelectItem value="STAFF">Staff</SelectItem>
+                              <SelectItem value="ADMIN">Admin</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              )}
             </div>
           </CardContent>
         </Card>

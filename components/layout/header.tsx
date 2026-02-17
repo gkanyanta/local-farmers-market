@@ -39,7 +39,7 @@ export function Header() {
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-2">
           <Link href="/cart">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative" aria-label={`Cart${itemCount > 0 ? ` (${itemCount} items)` : ""}`}>
               <ShoppingCart className="h-5 w-5" />
               {itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-xs text-white flex items-center justify-center">
@@ -52,12 +52,12 @@ export function Header() {
           {session ? (
             <>
               <Link href="/orders">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label="My orders">
                   <Package className="h-5 w-5" />
                 </Button>
               </Link>
               <Link href="/profile">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label="My account">
                   <User className="h-5 w-5" />
                 </Button>
               </Link>
@@ -90,7 +90,7 @@ export function Header() {
         {/* Mobile Menu Button */}
         <div className="flex md:hidden items-center gap-2">
           <Link href="/cart">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative" aria-label={`Cart${itemCount > 0 ? ` (${itemCount} items)` : ""}`}>
               <ShoppingCart className="h-5 w-5" />
               {itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-xs text-white flex items-center justify-center">
@@ -103,6 +103,8 @@ export function Header() {
             variant="ghost"
             size="icon"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>

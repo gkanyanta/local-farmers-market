@@ -79,7 +79,7 @@ export async function createPaymentIntent(
       bearer: "customer", // Customer pays the fees
     };
 
-    console.log("Lenco payment request:", { ...payload, url: `${LENCO_BASE_URL}/collections/mobile-money` });
+    console.log("Lenco payment request:", { reference: transactionRef, amount: payload.amount, operator: payload.operator });
 
     const response = await fetch(`${LENCO_BASE_URL}/collections/mobile-money`, {
       method: "POST",
@@ -92,10 +92,10 @@ export async function createPaymentIntent(
     });
 
     const data = await response.json();
-    console.log("Lenco payment response:", data);
+    console.log("Lenco payment response:", { status: response.status, ref: data.data?.reference, paymentStatus: data.data?.status });
 
     if (!response.ok) {
-      console.error("Lenco payment initiation failed:", data);
+      console.error("Lenco payment initiation failed:", { status: response.status, error: data.message || data.error });
       return {
         success: false,
         error: data.message || data.error || "Payment initiation failed",

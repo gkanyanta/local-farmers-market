@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 
+export const dynamic = "force-dynamic";
+
 const CANCELLABLE_STATUSES = ["PENDING_PAYMENT", "CONFIRMED"];
 
 export async function POST(

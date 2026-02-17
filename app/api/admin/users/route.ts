@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 import { Prisma } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+
 async function isAdmin() {
   const session = await getServerSession(authOptions);
   return session?.user?.role === "ADMIN";

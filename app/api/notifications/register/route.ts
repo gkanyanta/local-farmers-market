@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { deviceTokenSchema } from "@/lib/validations";
 import { rateLimit } from "@/lib/rate-limit";
 
+export const dynamic = "force-dynamic";
+
 // POST /api/notifications/register -- register/upsert a device token
 export async function POST(request: NextRequest) {
   const limited = rateLimit(request, { limit: 10, windowSeconds: 60 });

@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { categorySchema } from "@/lib/validations";
 import { rateLimit } from "@/lib/rate-limit";
 
+export const dynamic = "force-dynamic";
+
 async function isAdmin() {
   const session = await getServerSession(authOptions);
   return session?.user?.role === "ADMIN" || session?.user?.role === "STAFF";

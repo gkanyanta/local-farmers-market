@@ -7,6 +7,7 @@ import { ArrowLeft, Phone, MessageCircle, AlertCircle } from "lucide-react";
 export const metadata: Metadata = {
   title: "Order Details",
 };
+export const dynamic = "force-dynamic";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDateTime, getStatusColor, getStatusLabel } from "@/lib/utils";

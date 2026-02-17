@@ -6,6 +6,8 @@ import { checkoutSchema } from "@/lib/validations";
 import { generateOrderNumber } from "@/lib/utils";
 import { createPaymentIntent } from "@/lib/lenco";
 import { rateLimit } from "@/lib/rate-limit";
+
+export const dynamic = "force-dynamic";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {

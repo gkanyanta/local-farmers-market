@@ -11,7 +11,7 @@ import { ProductCard } from "@/components/shop/product-card";
 import { prisma } from "@/lib/prisma";
 
 async function getHomeData() {
-  const [categories, featuredProducts] = await Promise.all([
+  const [categories, featuredProducts, settings] = await Promise.all([
     prisma.category.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: "asc" },
@@ -22,13 +22,24 @@ async function getHomeData() {
       orderBy: { createdAt: "desc" },
       take: 6,
     }),
+    prisma.settings.findUnique({
+      where: { id: "default" },
+      select: { minOrderValue: true, cutOffTime: true },
+    }),
   ]);
 
-  return { categories, featuredProducts };
+  const minOrder = settings?.minOrderValue.toNumber() ?? 200;
+  const cutOffTime = settings?.cutOffTime ?? "09:00";
+  // Format "09:00" → "9:00 AM"
+  const [h, m] = cutOffTime.split(":");
+  const hour = parseInt(h);
+  const formattedCutOff = `${hour > 12 ? hour - 12 : hour || 12}:${m} ${hour >= 12 ? "PM" : "AM"}`;
+
+  return { categories, featuredProducts, minOrder, formattedCutOff };
 }
 
 export default async function HomePage() {
-  const { categories, featuredProducts } = await getHomeData();
+  const { categories, featuredProducts, minOrder, formattedCutOff } = await getHomeData();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -73,7 +84,7 @@ export default async function HomePage() {
                   </div>
                   <h3 className="font-semibold">1. Order Online</h3>
                   <p className="text-sm text-muted-foreground mt-2">
-                    Browse our selection and place your order. Minimum order is K200.
+                    Browse our selection and place your order. Minimum order is K{minOrder}.
                   </p>
                 </CardContent>
               </Card>
@@ -107,7 +118,7 @@ export default async function HomePage() {
             <div className="mt-6 max-w-2xl mx-auto bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
               <Clock className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-green-800">
-                <strong>Freshness guarantee:</strong> Order by 9:00 AM for same-day sourcing. Orders placed after 9:00 AM are sourced fresh the following day — because we never compromise on freshness.
+                <strong>Freshness guarantee:</strong> Order by {formattedCutOff} for same-day sourcing. Orders placed after {formattedCutOff} are sourced fresh the following day — because we never compromise on freshness.
               </p>
             </div>
           </div>

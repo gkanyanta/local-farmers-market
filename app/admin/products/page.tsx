@@ -50,7 +50,11 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
@@ -66,18 +70,28 @@ export default function AdminProductsPage() {
     stockQty: "",
   });
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (pageNum = 1, append = false) => {
+    if (!append) setIsLoading(true);
+    else setIsLoadingMore(true);
     try {
-      const res = await fetch(`/api/admin/products?search=${search}`);
+      const params = new URLSearchParams();
+      if (search) params.set("search", search);
+      params.set("page", String(pageNum));
+
+      const res = await fetch(`/api/admin/products?${params}`);
       if (res.ok) {
         const data = await res.json();
-        setProducts(data.products);
+        setProducts((prev) => append ? [...prev, ...data.products] : data.products);
+        setTotalPages(data.pagination.pages);
+        setTotal(data.pagination.total);
+        setPage(pageNum);
       }
     } catch (error) {
       console.error("Failed to fetch products:", error);
       toast({ title: "Error", description: "Failed to load products", variant: "destructive" });
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
@@ -95,9 +109,13 @@ export default function AdminProductsPage() {
   };
 
   useEffect(() => {
-    fetchProducts();
-    fetchCategories();
+    const timeout = setTimeout(() => fetchProducts(1), 300);
+    return () => clearTimeout(timeout);
   }, [search]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const resetForm = () => {
     setFormData({
@@ -171,7 +189,7 @@ export default function AdminProductsPage() {
 
       setDialogOpen(false);
       resetForm();
-      fetchProducts();
+      fetchProducts(1);
     } catch (error) {
       toast({
         title: "Error",
@@ -200,7 +218,7 @@ export default function AdminProductsPage() {
         description: `${product.name} has been deleted.`,
       });
 
-      fetchProducts();
+      fetchProducts(1);
     } catch (error) {
       toast({
         title: "Error",
@@ -429,6 +447,30 @@ export default function AdminProductsPage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {!isLoading && products.length > 0 && (
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-sm text-muted-foreground">
+            Showing {products.length} of {total} products
+          </p>
+          {page < totalPages && (
+            <Button
+              variant="outline"
+              onClick={() => fetchProducts(page + 1, true)}
+              disabled={isLoadingMore}
+            >
+              {isLoadingMore ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                "Load More"
+              )}
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );

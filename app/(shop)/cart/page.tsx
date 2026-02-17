@@ -16,12 +16,18 @@ export default function CartPage() {
   const { data: session } = useSession();
   const { items, subtotal, isLoading, updateQty, removeItem } = useCart();
   const [minOrderValue, setMinOrderValue] = useState(200);
+  const [cutOffDisplay, setCutOffDisplay] = useState("9:00 AM");
 
   useEffect(() => {
     fetch("/api/settings")
       .then((res) => res.json())
       .then((data) => {
         if (data.minOrderValue) setMinOrderValue(data.minOrderValue);
+        if (data.cutOffTime) {
+          const [h, m] = data.cutOffTime.split(":");
+          const hour = parseInt(h);
+          setCutOffDisplay(`${hour > 12 ? hour - 12 : hour || 12}:${m} ${hour >= 12 ? "PM" : "AM"}`);
+        }
       })
       .catch(() => {});
   }, []);
@@ -111,7 +117,7 @@ export default function CartPage() {
                 )}
                 <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-lg flex items-center gap-2">
                   <Clock className="h-4 w-4 flex-shrink-0" />
-                  Order by 9:00 AM for same-day sourcing.
+                  Order by {cutOffDisplay} for same-day sourcing.
                 </div>
               </div>
             </CardContent>

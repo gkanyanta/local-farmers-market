@@ -42,35 +42,45 @@ const statuses = [
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
-  const fetchOrders = async () => {
-    setIsLoading(true);
+  const fetchOrders = async (pageNum = 1, append = false) => {
+    if (!append) setIsLoading(true);
+    else setIsLoadingMore(true);
     try {
       const params = new URLSearchParams();
       if (search) params.set("search", search);
       if (statusFilter && statusFilter !== "all") params.set("status", statusFilter);
+      params.set("page", String(pageNum));
 
       const res = await fetch(`/api/admin/orders?${params}`);
       if (res.ok) {
         const data = await res.json();
-        setOrders(data.orders);
+        setOrders((prev) => append ? [...prev, ...data.orders] : data.orders);
+        setTotalPages(data.pagination.pages);
+        setTotal(data.pagination.total);
+        setPage(pageNum);
       }
     } catch (error) {
       console.error("Failed to fetch orders:", error);
       toast({ title: "Error", description: "Failed to load orders", variant: "destructive" });
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
   };
 
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(1);
   }, [statusFilter]);
 
   useEffect(() => {
-    const timeout = setTimeout(fetchOrders, 300);
+    const timeout = setTimeout(() => fetchOrders(1), 300);
     return () => clearTimeout(timeout);
   }, [search]);
 
@@ -172,6 +182,30 @@ export default function AdminOrdersPage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {!isLoading && orders.length > 0 && (
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-sm text-muted-foreground">
+            Showing {orders.length} of {total} orders
+          </p>
+          {page < totalPages && (
+            <Button
+              variant="outline"
+              onClick={() => fetchOrders(page + 1, true)}
+              disabled={isLoadingMore}
+            >
+              {isLoadingMore ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                "Load More"
+              )}
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );

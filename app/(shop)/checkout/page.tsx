@@ -21,6 +21,7 @@ export default function CheckoutPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [minOrderValue, setMinOrderValue] = useState(200);
+  const [cutOffDisplay, setCutOffDisplay] = useState("9:00 AM");
   const [pickupOption, setPickupOption] = useState<"OWN_RIDER" | "BOOK_RIDER">("OWN_RIDER");
   const [mobileOperator, setMobileOperator] = useState<"airtel" | "mtn">("airtel");
   const [formData, setFormData] = useState({
@@ -47,6 +48,11 @@ export default function CheckoutPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.minOrderValue) setMinOrderValue(data.minOrderValue);
+        if (data.cutOffTime) {
+          const [h, m] = data.cutOffTime.split(":");
+          const hour = parseInt(h);
+          setCutOffDisplay(`${hour > 12 ? hour - 12 : hour || 12}:${m} ${hour >= 12 ? "PM" : "AM"}`);
+        }
       })
       .catch(() => {});
   }, []);
@@ -136,7 +142,7 @@ export default function CheckoutPage() {
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3 mb-6">
         <Clock className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
         <p className="text-sm text-blue-800">
-          Orders placed before 9:00 AM are sourced and ready same day. Orders after 9:00 AM will be fulfilled the following day.
+          Orders placed before {cutOffDisplay} are sourced and ready same day. Orders after {cutOffDisplay} will be fulfilled the following day.
         </p>
       </div>
 

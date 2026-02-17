@@ -12,31 +12,34 @@ const PRECACHE_ASSETS = [
   '/manifest.json',
 ];
 
-// Initialize Firebase for background messaging
-// Config is sent via the messaging SDK when getToken() is called
-firebase.initializeApp({
-  apiKey: 'placeholder',
-  projectId: 'placeholder',
-  messagingSenderId: 'placeholder',
-  appId: 'placeholder',
-});
-
-const messaging = firebase.messaging();
-
-// Handle background FCM messages (data-only or when app is in background)
-messaging.onBackgroundMessage((payload) => {
-  const { title, body } = payload.notification || {};
-  const data = payload.data || {};
-
-  if (!title) return;
-
-  self.registration.showNotification(title, {
-    body: body || '',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-72.png',
-    data: { url: data.url || '/orders' },
+// Initialize Firebase for background messaging (only if configured)
+try {
+  firebase.initializeApp({
+    apiKey: 'placeholder',
+    projectId: 'placeholder',
+    messagingSenderId: 'placeholder',
+    appId: 'placeholder',
   });
-});
+
+  const messaging = firebase.messaging();
+
+  // Handle background FCM messages (data-only or when app is in background)
+  messaging.onBackgroundMessage((payload) => {
+    const { title, body } = payload.notification || {};
+    const data = payload.data || {};
+
+    if (!title) return;
+
+    self.registration.showNotification(title, {
+      body: body || '',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-72.png',
+      data: { url: data.url || '/orders' },
+    });
+  });
+} catch (e) {
+  console.log('Firebase messaging not configured, skipping');
+}
 
 // Install event - cache essential assets
 self.addEventListener('install', (event) => {

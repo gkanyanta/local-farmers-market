@@ -52,6 +52,55 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
     }
 
+    // Validate product availability and prices
+    const unavailable: string[] = [];
+    const priceChanges: string[] = [];
+
+    for (const item of cart.items) {
+      if (!item.product.isActive) {
+        unavailable.push(item.product.name);
+      } else if (
+        item.product.stockQty !== null &&
+        item.product.stockQty < item.qty
+      ) {
+        unavailable.push(
+          `${item.product.name} (only ${item.product.stockQty} available)`
+        );
+      }
+
+      if (item.priceSnapshot.toNumber() !== item.product.price.toNumber()) {
+        priceChanges.push(item.product.name);
+      }
+    }
+
+    if (unavailable.length > 0) {
+      return NextResponse.json(
+        {
+          error: `Some items are unavailable: ${unavailable.join(", ")}. Please update your cart.`,
+        },
+        { status: 400 }
+      );
+    }
+
+    if (priceChanges.length > 0) {
+      // Update cart prices to current values
+      for (const item of cart.items) {
+        if (item.priceSnapshot.toNumber() !== item.product.price.toNumber()) {
+          await prisma.cartItem.update({
+            where: { id: item.id },
+            data: { priceSnapshot: item.product.price },
+          });
+        }
+      }
+
+      return NextResponse.json(
+        {
+          error: `Prices have changed for: ${priceChanges.join(", ")}. Your cart has been updated — please review and try again.`,
+        },
+        { status: 409 }
+      );
+    }
+
     // Get settings for minimum order validation
     const settings = await prisma.settings.findUnique({
       where: { id: "default" },

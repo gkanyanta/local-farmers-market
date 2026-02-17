@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
+import { toast } from "@/components/ui/use-toast";
 
 interface CartItem {
   id: string;
@@ -108,9 +109,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       });
       if (res.ok) {
         await fetchCart();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast({ title: "Failed to add item", description: data.error || "Please try again", variant: "destructive" });
       }
     } catch (error) {
       console.error("Failed to add item:", error);
+      toast({ title: "Failed to add item", description: "Please try again", variant: "destructive" });
     }
   };
 
@@ -134,9 +139,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       });
       if (res.ok) {
         await fetchCart();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast({ title: "Failed to update quantity", description: data.error || "Please try again", variant: "destructive" });
       }
     } catch (error) {
       console.error("Failed to update qty:", error);
+      toast({ title: "Failed to update quantity", description: "Please try again", variant: "destructive" });
     }
   };
 
@@ -154,9 +163,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       });
       if (res.ok) {
         await fetchCart();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast({ title: "Failed to remove item", description: data.error || "Please try again", variant: "destructive" });
       }
     } catch (error) {
       console.error("Failed to remove item:", error);
+      toast({ title: "Failed to remove item", description: "Please try again", variant: "destructive" });
     }
   };
 

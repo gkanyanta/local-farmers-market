@@ -56,6 +56,11 @@ export function Header() {
                   <Package className="h-5 w-5" />
                 </Button>
               </Link>
+              <Link href="/profile">
+                <Button variant="ghost" size="icon">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
               {isAdmin && (
                 <Link href="/admin">
                   <Button variant="outline" size="sm">
@@ -137,6 +142,13 @@ export function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   My Orders
+                </Link>
+                <Link
+                  href="/profile"
+                  className="block py-2 text-sm font-medium hover:text-primary"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  My Account
                 </Link>
                 {isAdmin && (
                   <Link

@@ -139,8 +139,11 @@ function RegisterForm() {
                 setFormData({ ...formData, password: e.target.value })
               }
               required
-              minLength={6}
+              minLength={8}
             />
+            <p className="text-xs text-muted-foreground">
+              At least 8 characters with uppercase, lowercase, and a number.
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>

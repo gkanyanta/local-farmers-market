@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OrderTimeline } from "@/components/shop/order-timeline";
 import { CancelOrderButton } from "@/components/shop/cancel-order-button";
+import { PaymentStatusPoller } from "@/components/shop/payment-status-poller";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -65,17 +66,24 @@ export default async function OrderDetailPage({ params, searchParams }: PageProp
       </Link>
 
       {showPaymentPending && (
-        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6 flex gap-3">
-          <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="font-medium text-yellow-800">Payment Processing</p>
-            <p className="text-sm text-yellow-700">
-              Your payment is being processed. This page will update automatically
-              once confirmed. If the payment was successful, your order will be
-              confirmed shortly.
-            </p>
+        <>
+          <PaymentStatusPoller orderId={order.id} />
+          <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6 flex gap-3">
+            <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-yellow-800">Payment Processing</p>
+              <p className="text-sm text-yellow-700">
+                Your payment is being processed. This page will update automatically
+                once confirmed. If the payment was successful, your order will be
+                confirmed shortly.
+              </p>
+            </div>
           </div>
-        </div>
+        </>
+      )}
+
+      {order.status === "PENDING_PAYMENT" && !showPaymentPending && (
+        <PaymentStatusPoller orderId={order.id} />
       )}
 
       <div className="flex items-center justify-between mb-6">

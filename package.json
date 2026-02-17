@@ -27,7 +27,6 @@
     "@capacitor/cli": "^8.0.2",
     "@capacitor/core": "^8.0.2",
     "@capacitor/ios": "^8.0.2",
-    "@capacitor/keyboard": "^8.0.0",
     "@capacitor/push-notifications": "^8.0.0",
     "@capacitor/splash-screen": "^8.0.0",
     "@capacitor/status-bar": "^8.0.0",
@@ -42,7 +41,6 @@
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
-    "crypto-js": "^4.2.0",
     "date-fns": "^3.3.1",
     "firebase": "^12.9.0",
     "firebase-admin": "^13.6.1",
@@ -58,7 +56,6 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
-    "@types/crypto-js": "^4.2.2",
     "@types/node": "^20.11.20",
     "@types/react": "^18.2.57",
     "@types/react-dom": "^18.2.19",

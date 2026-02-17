@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { orderStatusUpdateSchema } from "@/lib/validations";
 import { sendOrderStatusNotification } from "@/lib/notifications";
+import { sendOrderStatusEmail } from "@/lib/email";
 
 async function isAdmin() {
   const session = await getServerSession(authOptions);
@@ -73,7 +74,10 @@ export async function PATCH(
 
     const order = await prisma.order.findUnique({
       where: { id },
-      include: { items: { include: { product: true } } },
+      include: {
+        items: { include: { product: true } },
+        user: { select: { email: true } },
+      },
     });
 
     if (!order) {
@@ -124,6 +128,11 @@ export async function PATCH(
 
     // Send push notification (fire-and-forget)
     sendOrderStatusNotification(order.userId, order.orderNumber, status);
+
+    // Send status email (fire-and-forget)
+    if (order.user?.email) {
+      sendOrderStatusEmail(order.user.email, order.orderNumber, status);
+    }
 
     // Serialize Decimal fields
     const serializedOrder = {

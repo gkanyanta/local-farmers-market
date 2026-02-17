@@ -6,6 +6,7 @@ import { checkoutSchema } from "@/lib/validations";
 import { generateOrderNumber } from "@/lib/utils";
 import { createPaymentIntent } from "@/lib/lenco";
 import { rateLimit } from "@/lib/rate-limit";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   const limited = rateLimit(request, { limit: 5, windowSeconds: 60 });
@@ -199,6 +200,20 @@ export async function POST(request: NextRequest) {
     await prisma.cartItem.deleteMany({
       where: { cartId: cart.id },
     });
+
+    // Send confirmation email (fire-and-forget)
+    sendOrderConfirmationEmail(
+      session.user.email,
+      orderNumber,
+      cart.items.map((item) => ({
+        name: item.product.name,
+        qty: item.qty,
+        unit: item.product.unit,
+        price: item.priceSnapshot.toNumber(),
+      })),
+      subtotal,
+      pickupOption
+    );
 
     return NextResponse.json({
       success: true,

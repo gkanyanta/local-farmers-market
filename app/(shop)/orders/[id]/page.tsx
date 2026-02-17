@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { OrderTimeline } from "@/components/shop/order-timeline";
 import { CancelOrderButton } from "@/components/shop/cancel-order-button";
 import { PaymentStatusPoller } from "@/components/shop/payment-status-poller";
+import { ReorderButton } from "@/components/shop/reorder-button";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -101,6 +102,24 @@ export default async function OrderDetailPage({ params, searchParams }: PageProp
       {(order.status === "PENDING_PAYMENT" || order.status === "CONFIRMED") && (
         <div className="mb-6">
           <CancelOrderButton orderId={order.id} />
+        </div>
+      )}
+
+      {(order.status === "PICKED_UP" || order.status === "CANCELLED") && (
+        <div className="mb-6">
+          <ReorderButton
+            items={order.items
+              .filter((item) => item.product?.isActive)
+              .map((item) => ({
+                productId: item.productId,
+                name: item.nameSnapshot,
+                price: item.product.price.toNumber(),
+                unit: item.unitSnapshot,
+                qty: item.qty,
+                imageUrl: item.product.imageUrl || undefined,
+                isPerishable: item.product.isPerishable,
+              }))}
+          />
         </div>
       )}
 

@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { ArrowLeft, Phone, MessageCircle, AlertCircle } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Order Details",
+};
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDateTime, getStatusColor, getStatusLabel } from "@/lib/utils";

@@ -7,7 +7,10 @@ import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Local Farmers Market | Fresh Produce from Zambian Farmers",
+  title: {
+    default: "Local Farmers Market | Fresh Produce from Zambian Farmers",
+    template: "%s | Local Farmers Market",
+  },
   description:
     "Order fresh produce and everyday goods sourced from local hardworking Zambian farmers. Pickup in Lusaka.",
   manifest: "/manifest.json",

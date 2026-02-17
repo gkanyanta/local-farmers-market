@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   Accordion,
   AccordionContent,
@@ -5,6 +6,11 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { prisma } from "@/lib/prisma";
+
+export const metadata: Metadata = {
+  title: "FAQ",
+  description: "Frequently asked questions about ordering, payments, pickup, and freshness at Local Farmers Market.",
+};
 
 async function getSettings() {
   const settings = await prisma.settings.findUnique({

@@ -119,6 +119,9 @@ export async function POST(request: NextRequest) {
 
 // PATCH /api/cart - Update item quantity
 export async function PATCH(request: NextRequest) {
+  const limited = rateLimit(request, { limit: 30, windowSeconds: 60 });
+  if (limited) return limited;
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
@@ -167,6 +170,9 @@ export async function PATCH(request: NextRequest) {
 
 // DELETE /api/cart - Remove item from cart
 export async function DELETE(request: NextRequest) {
+  const limited = rateLimit(request, { limit: 30, windowSeconds: 60 });
+  if (limited) return limited;
+
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {

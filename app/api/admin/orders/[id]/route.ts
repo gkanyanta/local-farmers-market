@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { orderStatusUpdateSchema } from "@/lib/validations";
 import { sendOrderStatusNotification } from "@/lib/notifications";
 import { sendOrderStatusEmail } from "@/lib/email";
+import { rateLimit } from "@/lib/rate-limit";
 
 async function isAdmin() {
   const session = await getServerSession(authOptions);
@@ -64,6 +65,9 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const limited = rateLimit(request, { limit: 30, windowSeconds: 60 });
+  if (limited) return limited;
+
   if (!(await isAdmin())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

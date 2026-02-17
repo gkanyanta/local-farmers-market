@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, ShoppingBag, DollarSign, Users } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Admin Dashboard",
+  description: "Admin dashboard for managing orders, products, and users.",
+};
 
 async function getStats() {
   const today = new Date();

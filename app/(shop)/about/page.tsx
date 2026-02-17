@@ -1,5 +1,11 @@
+import type { Metadata } from "next";
 import { Leaf, Users, Truck, Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description: "Learn about Local Farmers Market — connecting Lusaka families with fresh produce from hardworking Zambian farmers.",
+};
 
 export default function AboutPage() {
   return (

@@ -233,7 +233,7 @@ model DeviceToken {
 
 model Settings {
   id                String   @id @default("default")
-  minOrderValue     Decimal  @default(150) @db.Decimal(10, 2)
+  minOrderValue     Decimal  @default(200) @db.Decimal(10, 2)
   cutOffTime        String   @default("08:30")
   pickupAddressText String?  @db.Text
   contactPhone      String?

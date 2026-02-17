@@ -73,7 +73,7 @@ export default async function HomePage() {
                   </div>
                   <h3 className="font-semibold">1. Order Online</h3>
                   <p className="text-sm text-muted-foreground mt-2">
-                    Browse our selection and place your order. Minimum order is K150.
+                    Browse our selection and place your order. Minimum order is K200.
                   </p>
                 </CardContent>
               </Card>

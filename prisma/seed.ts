@@ -16,12 +16,12 @@ async function main() {
     update: {},
     create: {
       id: "default",
-      minOrderValue: 150,
+      minOrderValue: 200,
       cutOffTime: "08:30",
       pickupAddressText:
         "Collection Point: Woodlands Area, Lusaka. Exact location shared after order confirmation.",
-      contactPhone: "+260977123456",
-      supportWhatsApp: "+260977123456",
+      contactPhone: "+260965982894",
+      supportWhatsApp: "260965982894",
     },
   });
 

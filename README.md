@@ -128,7 +128,7 @@ market-app/
 ### Order Flow
 
 1. Customer browses and adds items to cart
-2. Cart enforces K150 minimum order value
+2. Cart enforces K200 minimum order value
 3. Checkout collects pickup details (own rider vs book rider)
 4. Payment initiated via Lenco
 5. Order created as `PENDING_PAYMENT`
@@ -236,7 +236,7 @@ https://your-app.vercel.app/api/webhooks/lenco
 
 ## Currency
 
-All prices are in Zambian Kwacha (ZMW). The minimum order value is K150.
+All prices are in Zambian Kwacha (ZMW). The minimum order value is K200.
 
 ## Important Notes
 

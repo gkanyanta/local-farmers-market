@@ -15,7 +15,7 @@ export default function CartPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const { items, subtotal, isLoading, updateQty, removeItem } = useCart();
-  const [minOrderValue, setMinOrderValue] = useState(150);
+  const [minOrderValue, setMinOrderValue] = useState(200);
 
   useEffect(() => {
     fetch("/api/settings")

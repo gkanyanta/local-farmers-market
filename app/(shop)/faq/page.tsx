@@ -9,12 +9,12 @@ const faqs = [
   {
     question: "How does ordering work?",
     answer:
-      "Browse our selection, add items to your cart, and checkout when your order reaches the minimum of K150. After payment is confirmed, we source your items fresh and notify you when they're ready for pickup.",
+      "Browse our selection, add items to your cart, and checkout when your order reaches the minimum of K200. After payment is confirmed, we source your items fresh and notify you when they're ready for pickup.",
   },
   {
     question: "What is the minimum order value?",
     answer:
-      "The minimum order value is K150. This helps us ensure efficient sourcing from our local farmers.",
+      "The minimum order value is K200. This helps us ensure efficient sourcing from our local farmers.",
   },
   {
     question: "How do I get my order?",
@@ -90,14 +90,14 @@ export default function FAQPage() {
         </p>
         <div className="flex justify-center gap-4">
           <a
-            href="tel:+260977123456"
+            href="tel:+260965982894"
             className="text-primary hover:underline"
           >
             Call Us
           </a>
           <span className="text-gray-300">|</span>
           <a
-            href="https://wa.me/260977123456"
+            href="https://wa.me/260965982894"
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline"

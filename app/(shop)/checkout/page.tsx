@@ -20,7 +20,7 @@ export default function CheckoutPage() {
   const { items, subtotal, clearCart } = useCart();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [minOrderValue, setMinOrderValue] = useState(150);
+  const [minOrderValue, setMinOrderValue] = useState(200);
   const [pickupOption, setPickupOption] = useState<"OWN_RIDER" | "BOOK_RIDER">("OWN_RIDER");
   const [mobileOperator, setMobileOperator] = useState<"airtel" | "mtn">("airtel");
   const [formData, setFormData] = useState({

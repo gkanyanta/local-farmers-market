@@ -18,7 +18,7 @@ export async function GET() {
 
     if (!settings) {
       return NextResponse.json({
-        minOrderValue: 150,
+        minOrderValue: 200,
         cutOffTime: "08:30",
       });
     }
@@ -29,6 +29,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Failed to fetch settings:", error);
-    return NextResponse.json({ minOrderValue: 150, cutOffTime: "08:30" });
+    return NextResponse.json({ minOrderValue: 200, cutOffTime: "08:30" });
   }
 }

@@ -19,7 +19,7 @@ interface Settings {
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<Settings>({
-    minOrderValue: 150,
+    minOrderValue: 200,
     cutOffTime: "08:30",
     pickupAddressText: "",
     contactPhone: "",

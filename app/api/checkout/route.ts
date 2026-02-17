@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     const settings = await prisma.settings.findUnique({
       where: { id: "default" },
     });
-    const minOrderValue = settings?.minOrderValue.toNumber() || 150;
+    const minOrderValue = settings?.minOrderValue.toNumber() || 200;
 
     // Calculate subtotal
     const subtotal = cart.items.reduce(

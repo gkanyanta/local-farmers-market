@@ -19,8 +19,8 @@ async function getSettings() {
 export async function Footer() {
   const settings = await getSettings();
 
-  const contactPhone = settings?.contactPhone || "+260 977 123 456";
-  const whatsappNumber = settings?.supportWhatsApp || "260977123456";
+  const contactPhone = settings?.contactPhone || "+260 965 982 894";
+  const whatsappNumber = settings?.supportWhatsApp || "260965982894";
 
   // Format phone for display (add spaces)
   const displayPhone = contactPhone.replace(/(\+\d{3})(\d{3})(\d{3})(\d{3})/, "$1 $2 $3 $4");

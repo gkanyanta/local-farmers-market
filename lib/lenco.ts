@@ -1,10 +1,5 @@
 import crypto from "crypto";
-import {
-  LENCO_SECRET_KEY,
-  LENCO_WEBHOOK_SECRET,
-  LENCO_BASE_URL,
-  APP_BASE_URL,
-} from "@/lib/env";
+import { env } from "@/lib/env";
 
 export type MobileOperator = "airtel" | "mtn";
 
@@ -81,11 +76,11 @@ export async function createPaymentIntent(
 
     console.log("Lenco payment request:", { reference: transactionRef, amount: payload.amount, operator: payload.operator });
 
-    const response = await fetch(`${LENCO_BASE_URL}/collections/mobile-money`, {
+    const response = await fetch(`${env.LENCO_BASE_URL}/collections/mobile-money`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${LENCO_SECRET_KEY}`,
+        Authorization: `Bearer ${env.LENCO_SECRET_KEY}`,
         Accept: "application/json",
       },
       body: JSON.stringify(payload),
@@ -131,8 +126,8 @@ export function verifyWebhookSignature(
     // Get signature from headers
     const signature = headers["x-lenco-signature"] || headers["lenco-signature"];
 
-    if (!LENCO_WEBHOOK_SECRET) {
-      console.error("LENCO_WEBHOOK_SECRET is not configured — rejecting webhook");
+    if (!env.LENCO_WEBHOOK_SECRET) {
+      console.error("env.LENCO_WEBHOOK_SECRET is not configured — rejecting webhook");
       return false;
     }
 
@@ -143,7 +138,7 @@ export function verifyWebhookSignature(
 
     // Create HMAC signature using webhook secret
     const expectedSignature = crypto
-      .createHmac("sha256", LENCO_WEBHOOK_SECRET)
+      .createHmac("sha256", env.LENCO_WEBHOOK_SECRET)
       .update(rawBody)
       .digest("hex");
 

@@ -1,7 +1,7 @@
 /**
- * Validate required environment variables at import time.
- * Import this module early (e.g. in lib/prisma.ts or layout.tsx) so
- * the app fails fast if configuration is missing.
+ * Environment variable helpers with lazy validation.
+ * Values are read from process.env on each access so they work correctly
+ * both at build time (where secrets aren't set) and at runtime.
  */
 
 function requireEnv(name: string): string {
@@ -12,29 +12,28 @@ function requireEnv(name: string): string {
   return value;
 }
 
-function optionalEnv(name: string, fallback: string): string {
-  return process.env[name] || fallback;
-}
+/** Lazily validated env object — throws only when a property is accessed at runtime */
+export const env = {
+  // Database
+  get POSTGRES_PRISMA_URL() { return requireEnv("POSTGRES_PRISMA_URL"); },
 
-// Database
-export const POSTGRES_PRISMA_URL = requireEnv("POSTGRES_PRISMA_URL");
+  // Auth
+  get NEXTAUTH_SECRET() { return requireEnv("NEXTAUTH_SECRET"); },
+  get NEXTAUTH_URL() { return process.env.NEXTAUTH_URL || "http://localhost:3000"; },
+  get APP_BASE_URL() { return process.env.APP_BASE_URL || "http://localhost:3000"; },
 
-// Auth
-export const NEXTAUTH_SECRET = requireEnv("NEXTAUTH_SECRET");
-export const NEXTAUTH_URL = optionalEnv("NEXTAUTH_URL", "http://localhost:3000");
-export const APP_BASE_URL = optionalEnv("APP_BASE_URL", "http://localhost:3000");
+  // Payment (Lenco)
+  get LENCO_SECRET_KEY() { return requireEnv("LENCO_SECRET_KEY"); },
+  get LENCO_WEBHOOK_SECRET() { return requireEnv("LENCO_WEBHOOK_SECRET"); },
+  get LENCO_BASE_URL() { return process.env.LENCO_BASE_URL || "https://api.lenco.co/access/v2"; },
 
-// Payment (Lenco)
-export const LENCO_SECRET_KEY = requireEnv("LENCO_SECRET_KEY");
-export const LENCO_WEBHOOK_SECRET = requireEnv("LENCO_WEBHOOK_SECRET");
-export const LENCO_BASE_URL = optionalEnv("LENCO_BASE_URL", "https://api.lenco.co/access/v2");
+  // Email
+  get RESEND_API_KEY() { return requireEnv("RESEND_API_KEY"); },
+  get RESEND_FROM_EMAIL() { return process.env.RESEND_FROM_EMAIL || "noreply@localfarmersmarket.zm"; },
 
-// Email
-export const RESEND_API_KEY = requireEnv("RESEND_API_KEY");
-export const RESEND_FROM_EMAIL = optionalEnv("RESEND_FROM_EMAIL", "noreply@localfarmersmarket.zm");
+  // Storage
+  get BLOB_READ_WRITE_TOKEN() { return process.env.BLOB_READ_WRITE_TOKEN || ""; },
 
-// Storage
-export const BLOB_READ_WRITE_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || "";
-
-// Cron
-export const CRON_SECRET = process.env.CRON_SECRET || "";
+  // Cron
+  get CRON_SECRET() { return process.env.CRON_SECRET || ""; },
+};

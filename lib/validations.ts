@@ -91,6 +91,23 @@ export const resetPasswordSchema = z.object({
   password: passwordSchema,
 });
 
+export const expenseCategorySchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+});
+
+export const expenseSchema = z.object({
+  amount: z
+    .number()
+    .positive("Amount must be positive")
+    .max(999999.99, "Amount cannot exceed K999,999.99"),
+  categoryId: z.string().min(1, "Category is required"),
+  date: z.string().min(1, "Date is required"),
+  description: z.string().optional(),
+  receiptUrl: z.string().optional(),
+});
+
+export type ExpenseCategoryInput = z.infer<typeof expenseCategorySchema>;
+export type ExpenseInput = z.infer<typeof expenseSchema>;
 export type DeviceTokenInput = z.infer<typeof deviceTokenSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;

@@ -12,6 +12,7 @@ import {
   ClipboardList,
   Users,
   ArrowLeft,
+  BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { href: "/admin/picking-list", label: "Picking List", icon: ClipboardList },
   { href: "/admin/payments", label: "Payments", icon: CreditCard },
+  { href: "/admin/finance", label: "Finance", icon: BarChart3 },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];

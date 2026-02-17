@@ -235,6 +235,37 @@ model DeviceToken {
   @@index([userId])
 }
 
+enum ExpenseType {
+  PRESET
+  CUSTOM
+}
+
+model ExpenseCategory {
+  id        String      @id @default(cuid())
+  name      String      @unique
+  type      ExpenseType @default(CUSTOM)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  expenses  Expense[]
+}
+
+model Expense {
+  id          String          @id @default(cuid())
+  amount      Decimal         @db.Decimal(10, 2)
+  categoryId  String
+  date        DateTime        @db.Date
+  description String?         @db.Text
+  receiptUrl  String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  category ExpenseCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([date])
+  @@index([createdAt])
+}
+
 model Settings {
   id                String   @id @default("default")
   minOrderValue     Decimal  @default(200) @db.Decimal(10, 2)

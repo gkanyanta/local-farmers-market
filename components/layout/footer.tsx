@@ -95,6 +95,17 @@ export async function Footer() {
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} Local Farmers Market. All rights reserved.</p>
           <p className="mt-1">Lusaka, Zambia</p>
+          <p className="mt-2">
+            Built by{" "}
+            <a
+              href="https://www.privtech.net"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary hover:underline"
+            >
+              PrivTech Solutions Limited
+            </a>
+          </p>
         </div>
       </div>
     </footer>
